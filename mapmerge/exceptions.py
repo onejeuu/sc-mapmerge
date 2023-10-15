@@ -6,8 +6,9 @@ class MapMergeException(Exception):
 
 
 class FolderIsEmpty(MapMergeException):
-    def __init__(self, folder: Path):
+    def __init__(self, folder: Path, info=""):
         self.folder = folder
+        self.info = info
 
 
 class ScFileError(MapMergeException):

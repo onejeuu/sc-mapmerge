@@ -33,4 +33,4 @@ class Prefix(NamedTuple):
     PROGRESS = "⏳"
     MERGE = "🔗"
     SAVE = "📥"
-    OUTPUT = "🖼"
+    OUTPUT = "🦄"

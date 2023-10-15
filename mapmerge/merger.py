@@ -1,17 +1,16 @@
 from pathlib import Path
 
-from rich import print
-from rich.progress import Progress
-from rich.prompt import Confirm
-from scfile import ol_to_dds
-from scfile.exceptions import ScFileException
+import scfile
 from PIL import Image
+from rich import print
 
 from mapmerge import exceptions as exc
-from mapmerge.consts import MIN_FILESIZE, MapSettings, Folder, Prefix
+from mapmerge.asker import Asker
+from mapmerge.consts import Folder, MapSettings, Prefix
+from mapmerge.progress import FilesProgress
 from mapmerge.region import Region, RegionsList
+from mapmerge.utils import Coords, ImgSize
 from mapmerge.workspace import Workspace
-from mapmerge.utils import ImgSize, Coords
 
 
 class MapMerger:
@@ -19,147 +18,127 @@ class MapMerger:
         self.workspace = Workspace()
         self.workspace.prepare()
 
-    def run(self):
-        self.ask_to_clear()
+        self.asker = Asker(self.workspace)
 
-        if not self.ask_to_skip_converting():
+    def run(self):
+        self.asker.clear_converted()
+
+        if not self.asker.skip_converting():
             self.convert_to_dds()
 
         self.merge_to_full_map()
 
-    def ask_to_clear(self):
-        if not self.workspace.is_empty(Folder.CONVERTED):
-            print()
-            if Confirm.ask(
-                (
-                    f"{Prefix.QUESTION} \"Converted\" folder is not empty. "
-                    "Clean it up?"
-                ),
-                default=False
-            ):
-                self.workspace.clear(Folder.CONVERTED)
-
-    def ask_to_skip_converting(self):
-        if not self.workspace.is_empty(Folder.CONVERTED):
-            print()
-            return Confirm.ask(
-                f"{Prefix.QUESTION} Skip step converting to .dds?",
-                default=True
-            )
+    def done(self):
+        print()
+        input("Press Enter to exit...")
 
     def convert_to_dds(self):
         ol_files = self.workspace.ol_files
 
         if not ol_files:
-            raise exc.FolderIsEmpty(folder=Folder.ORIGINAL)
+            raise exc.FolderIsEmpty(
+                folder=Folder.ORIGINAL,
+                info="Put .ol files there"
+            )
 
-        if self.ask_to_skip_empty_maps() and self._contains_empty_maps(ol_files):
-            ol_files = [f for f in ol_files if f.stat().st_size > MIN_FILESIZE]
+        if self.workspace.contains_empty_maps() and self.asker.skip_empty_maps():
+            ol_files = self.workspace.ol_files_not_empty
 
+        self.convert_ol_files(ol_files)
+
+    def convert_ol_files(self, ol_files: list[Path]):
         print()
         print(Prefix.CONVERTING, "[b]Converting files to dds...[/]")
 
-        with Progress() as self.progress:
-            self.task_id = self.progress.add_task(Prefix.PROGRESS, total=len(ol_files))
-
-            for path_ol in ol_files:
-                self.convert_ol_file(path_ol)
-
-            self.progress.update(self.task_id, description=f"{Prefix.DONE} [b green]Done[/]")
-
-    def convert_ol_file(self, path_ol: Path):
-        path_dds = Path(Folder.CONVERTED, path_ol.with_suffix(".dds").name)
-
-        try:
-            ol_to_dds(str(path_ol), str(path_dds))
-
-        except ScFileException:
-            raise exc.ScFileError(filename=path_ol.as_posix())
-
-        self.progress.update(self.task_id, advance=1)
-
-    def ask_to_skip_empty_maps(self):
-        print()
-        return Confirm.ask(
-            (
-                f"{Prefix.QUESTION} Files contains empty maps. Skip them?\n"
-                "(Strictly recommended, otherwise image can turn out incredibly large)"
-            ),
-            default=True
-        )
+        with FilesProgress(total=len(ol_files)) as progress:
+            for ol in ol_files:
+                dds = Path(Folder.CONVERTED, ol.with_suffix(".dds").name)
+                scfile.ol_to_dds(str(ol), str(dds))
+                progress.increment()
 
     def merge_to_full_map(self):
         dds_files = self.workspace.dds_files
 
         if not dds_files:
-            raise exc.FolderIsEmpty(folder=Folder.CONVERTED)
+            raise exc.FolderIsEmpty(
+                folder=Folder.CONVERTED,
+                info="Convert .ol files to .dds first"
+            )
 
-        regions = [Region(path) for path in dds_files]
-        regions = RegionsList(*regions)
-        regions.sort()
+        self.parse_regions(dds_files)
 
-        self._find_chunk_size(regions)
+        self.chunk_size = self._get_chunk_size()
 
-        width = (regions.width + 1) * self.chunk_size
-        height = (regions.height + 1) * self.chunk_size
+        self.create_output_image()
+        self.paste_regions()
+        self.save_output_image()
 
-        resolution = width * height
+    def parse_regions(self, dds_files: list[Path]):
+        self.regions = RegionsList(
+            *[Region(dds) for dds in dds_files]
+        )
+        self.regions.sort()
 
-        if resolution >= MapSettings.RESOLUTION_LIMIT:
-            raise exc.ImageResolutionLimit(f"Output image is to big - {resolution}px")
+    def create_output_image(self):
+        size = self._get_output_image_size()
 
-        output_image = Image.new(
+        self.output_image = Image.new(
             mode="RGB",
-            size=(width, height),
+            size=size,
             color=MapSettings.BACKGROUND_COLOR
         )
 
+    def paste_regions(self):
         print()
         print(Prefix.MERGE, "[b]Merging to full map...[/]")
 
-        with Progress() as progress:
-            task_id = progress.add_task(Prefix.PROGRESS, total=len(regions))
-
-            for region in regions:
+        with FilesProgress(total=len(self.regions)) as progress:
+            for region in self.regions:
                 with Image.open(region.path) as img:
-                    output_image.paste(img, self._get_image_coordinates(region, regions))
+                    self.output_image.paste(img, self._get_image_coordinates(region))
+                progress.increment()
 
-                progress.update(task_id, advance=1)
-            progress.update(task_id, description=f"{Prefix.DONE} [b green]Done[/]")
-
+    def save_output_image(self):
         print()
         print(Prefix.SAVE, "[b]Saving file...[/]")
 
-        output_image.save(f"{Folder.OUTPUT}/{MapSettings.FILENAME}.png")
+        self.output_image.save(f"{Folder.OUTPUT}/{MapSettings.FILENAME}.png")
 
-        print(Prefix.OUTPUT, f"[b purple]Image saved in[/] '{Folder.OUTPUT.as_posix()}' [b purple]folder.[/]")
+        print(Prefix.OUTPUT, f"[b purple]Image saved to[/] '{Folder.OUTPUT.as_posix()}' [b purple]folder.[/]")
 
-        print()
-        input("Press Enter to exit...")
+    def _get_chunk_size(self):
+        sizes = {
+            ImgSize(w=img.width, h=img.height)
+            for region in self.regions
+            for img in [Image.open(region.path)]
+        }
 
-    def _find_chunk_size(self, regions: RegionsList) -> None:
-        sizes: list[ImgSize] = []
+        if len(sizes) != 1:
+            raise exc.ImagesSizesNotSame("Map images should be the same size.")
 
-        for region in regions:
-            with Image.open(region.path) as img:
-                sizes.append(ImgSize(w=img.width, h=img.height))
-
-        if not all(w == h for w, h in sizes):
+        size = sizes.pop()
+        if size.w != size.h:
             raise exc.ImageIsNotSquare("Map images should be square.")
 
-        if not all(size == sizes[0] for size in sizes):
-            raise exc.ImagesSizesNotSame("Map images should be same size.")
+        return size.w
 
-        self.chunk_size = sizes[0]
+    def _get_output_image_size(self):
+        size = ImgSize(
+            w=(self.regions.width + 1) * self.chunk_size,
+            h=(self.regions.height + 1) * self.chunk_size
+        )
 
-    def _get_image_coordinates(self, region: Region, regions: RegionsList) -> Coords:
-        x = (region.x - regions.min_x) * self.chunk_size
-        y = (region.z - regions.min_z) * self.chunk_size
+        resolution = size.w * size.h
+
+        if resolution >= MapSettings.RESOLUTION_LIMIT:
+            raise exc.ImageResolutionLimit(
+                f"Output image is to big - {size.w}px x {size.h}px"
+            )
+
+        return size
+
+    def _get_image_coordinates(self, region: Region):
+        x = (region.x - self.regions.min_x) * self.chunk_size
+        y = (region.z - self.regions.min_z) * self.chunk_size
 
         return Coords(x, y)
-
-    def _contains_empty_maps(self, files: list[Path]):
-        for entry in files:
-            if entry.is_file() and entry.stat().st_size < MIN_FILESIZE:
-                return True
-        return False
