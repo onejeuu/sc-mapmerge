@@ -9,7 +9,7 @@ packages = [{ include = "mapmerge" }]
 [tool.poetry.dependencies]
 python = "^3.11"
 rich = "^13.5.3"
-scfile = "^13.5.3"
+scfile = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]
