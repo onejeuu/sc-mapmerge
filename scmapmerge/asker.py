@@ -2,8 +2,8 @@ from typing import NamedTuple
 
 from rich.prompt import Confirm
 
-from mapmerge.workspace import Workspace
-from mapmerge.consts import Prefix, Folder
+from scmapmerge.workspace import Workspace
+from scmapmerge.consts import Prefix, Folder
 
 
 class Asker:

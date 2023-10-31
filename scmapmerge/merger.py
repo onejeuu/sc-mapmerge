@@ -4,13 +4,13 @@ import scfile
 from PIL import Image
 from rich import print
 
-from mapmerge import exceptions as exc
-from mapmerge.asker import Asker
-from mapmerge.consts import Folder, MapSettings, Prefix
-from mapmerge.progress import FilesProgress
-from mapmerge.region import Region, RegionsList
-from mapmerge.utils import Coords, ImgSize
-from mapmerge.workspace import Workspace
+from scmapmerge import exceptions as exc
+from scmapmerge.asker import Asker
+from scmapmerge.consts import Folder, MapSettings, Prefix
+from scmapmerge.progress import FilesProgress
+from scmapmerge.region import Region, RegionsList
+from scmapmerge.utils import Coords, ImgSize
+from scmapmerge.workspace import Workspace
 
 
 class MapMerger:
@@ -28,21 +28,17 @@ class MapMerger:
 
         self.merge_to_full_map()
 
-    def done(self):
-        print()
-        input("Press Enter to exit...")
-
     def convert_to_dds(self):
         ol_files = self.workspace.ol_files
 
         if not ol_files:
             raise exc.FolderIsEmpty(
-                folder=Folder.ORIGINAL,
+                folder=Folder.ENCRYPTED,
                 info="Put .ol files there"
             )
 
         if self.workspace.contains_empty_maps() and self.asker.skip_empty_maps():
-            ol_files = self.workspace.ol_files_not_empty
+            ol_files = self.workspace.not_empty_ol_files
 
         self.convert_ol_files(ol_files)
 
@@ -114,11 +110,11 @@ class MapMerger:
         }
 
         if len(sizes) != 1:
-            raise exc.ImagesSizesNotSame("Map images should be the same size.")
+            raise exc.ImagesSizesNotSame("Map images should be the same size")
 
         size = sizes.pop()
         if size.w != size.h:
-            raise exc.ImageIsNotSquare("Map images should be square.")
+            raise exc.ImageIsNotSquare("Map images should be square")
 
         return size.w
 

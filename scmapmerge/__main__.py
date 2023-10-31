@@ -3,10 +3,10 @@ import argparse
 from rich import print
 from scfile.exceptions import ScFileException
 
-from mapmerge import exceptions as exc
-from mapmerge.merger import MapMerger
-from mapmerge.asker import Asker
-from mapmerge.consts import VERSION
+from scmapmerge import exceptions as exc
+from scmapmerge.merger import MapMerger
+from scmapmerge.asker import Asker
+from scmapmerge.consts import VERSION
 
 
 def error(text: str):
@@ -23,6 +23,11 @@ def title():
     print()
     print("[b purple]STALCRAFT Map Merger[/]")
     print(f"[b]Version {VERSION}[/]")
+
+
+def pause():
+    print()
+    input("Press Enter to exit...")
 
 
 def main():
@@ -43,7 +48,6 @@ def main():
             return
 
         merger.run()
-        merger.done()
 
     except exc.FolderIsEmpty as err:
         error(f"'{err.folder.as_posix()}' folder has no required files. {err.info}.")
@@ -64,3 +68,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    pause()

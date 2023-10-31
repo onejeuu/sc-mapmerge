@@ -1,7 +1,7 @@
 from rich import progress
 from typing import NamedTuple
 
-from mapmerge.consts import Prefix
+from scmapmerge.consts import Prefix
 
 
 class Description(NamedTuple):

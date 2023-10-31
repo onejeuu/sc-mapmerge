@@ -21,9 +21,9 @@ class MapSettings(NamedTuple):
 
 class Folder(NamedTuple):
     WORKSPACE = Path("workspace")
-    ORIGINAL = Path(WORKSPACE, "Original")
-    CONVERTED = Path(WORKSPACE, "Converted")
-    OUTPUT = Path(WORKSPACE, "Output")
+    ENCRYPTED = Path(WORKSPACE, "1-encrypted")
+    CONVERTED = Path(WORKSPACE, "2-converted")
+    OUTPUT = Path(WORKSPACE, "3-output")
 
 
 class Prefix(NamedTuple):

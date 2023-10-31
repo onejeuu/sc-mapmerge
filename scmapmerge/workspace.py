@@ -1,14 +1,14 @@
 from pathlib import Path
 
-from mapmerge.consts import Folder, MIN_FILESIZE
+from scmapmerge.consts import Folder, MIN_FILESIZE
 
 
 class Workspace:
     def __init__(self):
         self.folders = [
             Folder.WORKSPACE,
+            Folder.ENCRYPTED,
             Folder.CONVERTED,
-            Folder.ORIGINAL,
             Folder.OUTPUT
         ]
 
@@ -43,10 +43,10 @@ class Workspace:
 
     @property
     def ol_files(self):
-        return [f for f in self.files(Folder.ORIGINAL) if f.suffix == '.ol']
+        return [f for f in self.files(Folder.ENCRYPTED) if f.suffix == '.ol']
 
     @property
-    def ol_files_not_empty(self):
+    def not_empty_ol_files(self):
         return [f for f in self.ol_files if f.stat().st_size > MIN_FILESIZE]
 
     @property

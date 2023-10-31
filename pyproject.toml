@@ -1,15 +1,18 @@
 [tool.poetry]
 name = "sc-mapmerge"
 version = "1.0.0"
-description = ""
+description = "Utility for merging stalcraft map into single image"
 authors = ["onejeuu <bloodtrail@beber1k.ru>"]
 license = "MIT"
-packages = [{ include = "mapmerge" }]
+packages = [{ include = "scmapmerge" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 rich = "^13.5.3"
-scfile = "^1.0.0"
+sc-file = "^1.0.0"
+
+[tool.poetry.scripts]
+build = "build:build"
 
 [build-system]
 requires = ["poetry-core"]
