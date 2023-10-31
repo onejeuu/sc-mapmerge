@@ -15,6 +15,10 @@ This CLI utility is designed to merging stalcraft map into single image.
 
 2. Run utility.
 
+### Create Workspace
+
+Run utility. Folders will be created automatically.
+
 ### Clear Workspace
 
 Run utility with `-clear` option.
