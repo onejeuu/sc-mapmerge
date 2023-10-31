@@ -2,6 +2,7 @@
 
 This CLI utility is designed to merging stalcraft map into single image.
 
+You can use compiled executable from [Releases](https://github.com/onejeuu/sc-mapmerge/releases/) page.
 
 ## Usage
 
@@ -23,7 +24,7 @@ Run utility. Folders will be created automatically.
 
 Run utility with `-clear` option.
 
-This will delete absolutely **all files** in workspace folder, including **`3-output`**.
+This will delete absolutely **all files** in workspace folder, including **`workspace/3-output`**.
 
 
 ## Build
