@@ -7,8 +7,9 @@ license = "MIT"
 packages = [{ include = "scmapmerge" }]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-rich = "^13.5.3"
+python = "^3.11,<3.13"
+pillow = "^10.0.0"
+rich = "^13.0.0"
 sc-file = "^1.0.0"
 
 [tool.poetry.scripts]

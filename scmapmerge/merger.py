@@ -96,7 +96,7 @@ class MapMerger:
 
     def save_output_image(self):
         print()
-        print(Prefix.SAVE, "[b]Saving file...[/]")
+        print(Prefix.SAVE, "[b]Saving image file...[/]")
 
         self.output_image.save(f"{Folder.OUTPUT}/{MapSettings.FILENAME}.png")
 
