@@ -22,7 +22,7 @@ Run utility. Folders will be created automatically.
 
 ### Clear Workspace
 
-Run utility with `-clear` option.
+Run utility with `--clear` or `-D` option.
 
 This will delete absolutely **all files** in workspace folder, including **`workspace/3-output`**.
 
