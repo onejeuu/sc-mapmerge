@@ -1,8 +1,13 @@
 from pathlib import Path
 
+from scmapmerge.exceptions import InvalidRegionFilename
+
 
 class Region:
     def __init__(self, path: Path):
+        if not path.stem.count(".") == 2:
+            raise InvalidRegionFilename(path)
+
         self.path = path
         _, self._x, self._z = path.stem.split(".")
 
@@ -22,7 +27,7 @@ class Region:
 
 
 class RegionsList(list):
-    def __init__(self, *regions: Region):
+    def __init__(self, regions: list[Region]):
         super().__init__(regions)
 
     @property
@@ -49,8 +54,8 @@ class RegionsList(list):
     def height(self):
         return abs(self.max_z - self.min_z)
 
-    def sort(self, key=lambda region: (region.x, region.z), *args, **kwargs):
-        super().sort(key=key, *args, **kwargs)
+    def sort(self, key=lambda region: (region.x, region.z), reverse: bool = False):
+        super().sort(key=key, reverse=reverse)
 
     def __repr__(self):
         return f"<RegionsList> {self.min_x=} {self.min_z=} {self.max_x=} {self.max_z=}"

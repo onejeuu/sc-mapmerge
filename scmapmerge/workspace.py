@@ -1,20 +1,19 @@
+from datetime import datetime
 from pathlib import Path
 
-from scmapmerge.consts import Folder, MIN_FILESIZE
+from scmapmerge.consts import MIN_FILESIZE, Folder
 
 
 class Workspace:
-    def __init__(self):
+    def __init__(self, filename: str):
+        self.filename = filename
+
         self.folders = [
             Folder.WORKSPACE,
             Folder.ENCRYPTED,
             Folder.CONVERTED,
             Folder.OUTPUT
         ]
-
-    def prepare(self):
-        if not self.exists:
-            self.create_all()
 
     @property
     def exists(self) -> bool:
@@ -52,3 +51,20 @@ class Workspace:
     @property
     def dds_files(self):
         return [f for f in self.files(Folder.CONVERTED) if f.suffix == '.dds']
+
+    def get_output_image_path(self):
+        folder = Path(Folder.OUTPUT)
+        current = datetime.now()
+        date = current.strftime("%Y.%m.%d")
+
+        filename = f"{self.filename} {date}.png"
+        path = folder / filename
+
+        # Uniqueness check
+        count = 2
+        while path.exists():
+            filename = f"{self.filename} {date} ({count}).png"
+            path = folder / filename
+            count += 1
+
+        return path

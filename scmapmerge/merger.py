@@ -5,8 +5,8 @@ from PIL import Image
 from rich import print
 
 from scmapmerge import exceptions as exc
-from scmapmerge.asker import Asker
-from scmapmerge.consts import Folder, MapSettings, Prefix
+from scmapmerge.asker import WorkspaceAsker
+from scmapmerge.consts import MAP_BACKGROUND_COLOR, Defaults, Folder
 from scmapmerge.progress import FilesProgress
 from scmapmerge.region import Region, RegionsList
 from scmapmerge.utils import Coords, ImgSize
@@ -14,13 +14,23 @@ from scmapmerge.workspace import Workspace
 
 
 class MapMerger:
-    def __init__(self):
-        self.workspace = Workspace()
-        self.workspace.prepare()
+    def __init__(
+        self,
+        filename: str = Defaults.FILENAME,
+        resolution_limit: int  = Defaults.RESOLUTION_LIMIT,
+        compress: int = Defaults.COMPRESS_LEVEL
+    ):
+        self.filename = filename
+        self.resolution_limit = resolution_limit
+        self.compress = compress
 
-        self.asker = Asker(self.workspace)
+        self.workspace = Workspace(filename)
+        self.asker = WorkspaceAsker(self.workspace)
 
     def run(self):
+        self.check_first_launch()
+        self.workspace.create_all()
+
         self.asker.clear_converted()
 
         if not self.asker.skip_converting():
@@ -28,13 +38,22 @@ class MapMerger:
 
         self.merge_to_full_map()
 
+    def check_first_launch(self):
+        if not self.workspace.exists:
+            self.workspace.create_all()
+            print(
+                "\n[b yellow]Workspace has been successfully created.\n"
+                f"Place .ol files in[/] '{Folder.ENCRYPTED.as_posix()}' [b yellow]folder.[/]"
+            )
+            input("Press Enter to continue...")
+
     def convert_to_dds(self):
         ol_files = self.workspace.ol_files
 
         if not ol_files:
             raise exc.FolderIsEmpty(
                 folder=Folder.ENCRYPTED,
-                info="Put .ol files there"
+                hint="Put .ol files there"
             )
 
         if self.workspace.contains_empty_maps() and self.asker.skip_empty_maps():
@@ -44,7 +63,7 @@ class MapMerger:
 
     def convert_ol_files(self, ol_files: list[Path]):
         print()
-        print(Prefix.CONVERTING, "[b]Converting files to dds...[/]")
+        print("🔄", "[b]Converting files to dds...[/]")
 
         with FilesProgress(total=len(ol_files)) as progress:
             for ol in ol_files:
@@ -58,7 +77,7 @@ class MapMerger:
         if not dds_files:
             raise exc.FolderIsEmpty(
                 folder=Folder.CONVERTED,
-                info="Convert .ol files to .dds first"
+                hint="Convert .ol files to .dds first"
             )
 
         self.parse_regions(dds_files)
@@ -71,7 +90,7 @@ class MapMerger:
 
     def parse_regions(self, dds_files: list[Path]):
         self.regions = RegionsList(
-            *[Region(dds) for dds in dds_files]
+            [Region(dds) for dds in dds_files]
         )
         self.regions.sort()
 
@@ -81,12 +100,12 @@ class MapMerger:
         self.output_image = Image.new(
             mode="RGB",
             size=size,
-            color=MapSettings.BACKGROUND_COLOR
+            color=MAP_BACKGROUND_COLOR
         )
 
     def paste_regions(self):
         print()
-        print(Prefix.MERGE, "[b]Merging to full map...[/]")
+        print("🔗", "[b]Merging to full map...[/]")
 
         with FilesProgress(total=len(self.regions)) as progress:
             for region in self.regions:
@@ -96,40 +115,46 @@ class MapMerger:
 
     def save_output_image(self):
         print()
-        print(Prefix.SAVE, "[b]Saving image file...[/]")
+        print("📥", "[b]Saving image file...[/]")
 
-        self.output_image.save(f"{Folder.OUTPUT}/{MapSettings.FILENAME}.png")
+        path = self.workspace.get_output_image_path()
 
-        print(Prefix.OUTPUT, f"[b purple]Image saved to[/] '{Folder.OUTPUT.as_posix()}' [b purple]folder.[/]")
+        self.output_image.save(
+            fp=path,
+            compress_level=self.compress
+        )
+
+        print("🦄", f"[b purple]Image saved as[/] '{path}'[b purple].[/]")
 
     def _get_chunk_size(self):
-        sizes = {
-            ImgSize(w=img.width, h=img.height)
-            for region in self.regions
-            for img in [Image.open(region.path)]
-        }
+        sizes = set()
 
+        # Check that all images are square
+        for region in self.regions:
+            with Image.open(region.path) as img:
+                size = ImgSize(img.width, img.height)
+
+                if size.w != size.h:
+                    raise exc.ImageIsNotSquare(size)
+
+                sizes.add(size)
+
+        # Check that all images have same resolution
         if len(sizes) != 1:
-            raise exc.ImagesSizesNotSame("Map images should be the same size")
+            raise exc.ImagesSizesNotSame(sizes)
 
         size = sizes.pop()
-        if size.w != size.h:
-            raise exc.ImageIsNotSquare("Map images should be square")
-
         return size.w
 
     def _get_output_image_size(self):
-        size = ImgSize(
-            w=(self.regions.width + 1) * self.chunk_size,
-            h=(self.regions.height + 1) * self.chunk_size
-        )
+        w = (self.regions.width + 1) * self.chunk_size
+        h = (self.regions.height + 1) * self.chunk_size
+
+        size = ImgSize(w, h)
 
         resolution = size.w * size.h
-
-        if resolution >= MapSettings.RESOLUTION_LIMIT:
-            raise exc.ImageResolutionLimit(
-                f"Output image is to big - {size.w}px x {size.h}px"
-            )
+        if resolution >= self.resolution_limit:
+            raise exc.OutputImageTooLarge(size, self.resolution_limit)
 
         return size
 

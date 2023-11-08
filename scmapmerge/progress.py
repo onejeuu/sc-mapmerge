@@ -1,12 +1,10 @@
 from rich import progress
 from typing import NamedTuple
 
-from scmapmerge.consts import Prefix
-
 
 class Description(NamedTuple):
-    TASK = f"{Prefix.PROGRESS} [b deep_pink2]Wait[/]"
-    DONE = f"{Prefix.DONE} [b yellow4]Done[/]"
+    TASK = "⏳ [b deep_pink2]Wait[/]"
+    DONE = "✅ [b yellow4]Done[/]"
 
 
 class FilesProgress:

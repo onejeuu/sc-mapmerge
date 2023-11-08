@@ -1,28 +1,65 @@
 from pathlib import Path
+from utils import ImgSize
 
 
-class MapMergeException(Exception):
+class ScMapMergeException(Exception):
     pass
 
 
-class FolderIsEmpty(MapMergeException):
-    def __init__(self, folder: Path, info=""):
+class RegionError(ScMapMergeException):
+    pass
+
+
+class InvalidRegionFilename(RegionError):
+    def __init__(self, path: Path):
+        self.path = path
+
+    def __str__(self):
+        return f"Region (image file) '{self.path.as_posix()}' has invalid filename format."
+
+
+class FolderIsEmpty(ScMapMergeException):
+    def __init__(self, folder: Path, hint=""):
         self.folder = folder
-        self.info = info
+        self.hint = hint
+
+    def __str__(self):
+        return f"'{self.folder.as_posix()}' folder has no required files. {self.hint}."
 
 
-class ScFileError(MapMergeException):
-    def __init__(self, filename: str):
-        self.filename = filename
-
-
-class ImageIsNotSquare(MapMergeException):
+class ChunkSizeError(ScMapMergeException):
     pass
 
 
-class ImagesSizesNotSame(MapMergeException):
-    pass
+class ImageIsNotSquare(ChunkSizeError):
+    def __init__(self, size: ImgSize):
+        self.size = size
+
+    def __str__(self):
+        return (
+            "Map images should be square. "
+            f"{self.size.w} x {self.size.h} px."
+        )
 
 
-class ImageResolutionLimit(MapMergeException):
-    pass
+class ImagesSizesNotSame(ChunkSizeError):
+    def __init__(self, sizes: set[ImgSize]):
+        self.sizes = sizes
+
+    def __str__(self):
+        return (
+            "Map images should be same size. "
+            f"Images have {len(self.sizes)} different sizes."
+        )
+
+
+class OutputImageTooLarge(ScMapMergeException):
+    def __init__(self, size: ImgSize, limit: int):
+        self.size = size
+        self.limit = limit
+
+    def __str__(self):
+        return (
+            "Output image is too large. "
+            f"{self.size.w}px x {self.size.h}px > {self.limit}px."
+        )
