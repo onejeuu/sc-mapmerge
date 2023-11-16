@@ -2,9 +2,12 @@ import click
 from rich import print
 from scfile.exceptions import ScFileException
 
-from scmapmerge import MapMerger, OutputImage, Workspace, Asker
+from scmapmerge.asker import Asker
 from scmapmerge.consts import VERSION, Defaults
 from scmapmerge.exceptions import ScMapMergeException
+from scmapmerge.merger import MapMerger
+from scmapmerge.output import OutputImage
+from scmapmerge.workspace import Workspace
 
 
 @click.command()

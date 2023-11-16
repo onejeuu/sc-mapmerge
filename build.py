@@ -11,7 +11,7 @@ def build():
     PyInstaller.__main__.run([
         ENTRYPOINT,
         "-i", ICON,
-        "--name", "ScMapMerge",
+        "--name", "MG",
         "--specpath", "build",
         "--onefile"
     ])
