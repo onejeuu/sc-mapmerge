@@ -46,9 +46,10 @@ def main(filename: str, limit: int, compress: int, clear: bool, nopause: bool):
     print(f"[b]Version {VERSION}[/]")
 
     try:
-        if clear and asker.clear_workspace():
-            merger.workspace.clear_all()
-            print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
+        if clear:
+            if asker.clear_workspace():
+                workspace.clear_all()
+                print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
             return
 
         merger.run()
