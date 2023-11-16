@@ -45,12 +45,12 @@ class Workspace:
         return [f for f in self.files(Folder.ENCRYPTED) if f.suffix == '.ol']
 
     @property
-    def not_empty_ol_files(self):
-        return [f for f in self.ol_files if f.stat().st_size > MIN_FILESIZE]
-
-    @property
     def dds_files(self):
         return [f for f in self.files(Folder.CONVERTED) if f.suffix == '.dds']
+
+    @property
+    def not_empty_ol_files(self):
+        return [f for f in self.ol_files if f.stat().st_size > MIN_FILESIZE]
 
     def get_output_image_path(self):
         folder = Path(Folder.OUTPUT)

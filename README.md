@@ -26,6 +26,20 @@ Run utility with `--clear` or `-D` option.
 
 This will delete absolutely **all files** in workspace folder, including **`workspace/3-output`**.
 
+### Options
+
+`--help` Show options help message.
+
+`-F` `--filename` - Output image filename prefix. Defaults to "Map".
+
+`-L` `--limit` - Output image resolution limit, to prevent memory overflow.
+
+`-C` `--compress` - PNG compression level. From 0 (min) to 9 (max). Defaults to 6.
+
+`-D` `--clear` - Clear workspace folder. Deletes all files.
+
+`-N` `--nopause` - Removes pause before program exit.
+
 
 ## Build
 ```console

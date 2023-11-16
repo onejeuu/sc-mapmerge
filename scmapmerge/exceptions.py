@@ -19,7 +19,7 @@ class InvalidRegionFilename(RegionError):
 
 
 class FolderIsEmpty(ScMapMergeException):
-    def __init__(self, folder: Path, hint=""):
+    def __init__(self, folder: Path, hint: str):
         self.folder = folder
         self.hint = hint
 

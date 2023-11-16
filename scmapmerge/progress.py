@@ -17,7 +17,7 @@ class FilesProgress:
     def columns(self):
         return (
             progress.TextColumn("[progress.description]{task.description}"),
-            progress.BarColumn(),
+            progress.BarColumn(bar_width=25),
             progress.MofNCompleteColumn(),
             progress.TaskProgressColumn()
         )

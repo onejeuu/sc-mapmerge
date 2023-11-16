@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 
 # ? 10KB

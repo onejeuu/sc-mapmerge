@@ -2,16 +2,15 @@ import click
 from rich import print
 from scfile.exceptions import ScFileException
 
-from scmapmerge import asker
+from scmapmerge import MapMerger, OutputImage, Workspace, Asker
 from scmapmerge.consts import VERSION, Defaults
 from scmapmerge.exceptions import ScMapMergeException
-from scmapmerge.merger import MapMerger
 
 
 @click.command()
 @click.option(
     "-F", "--filename", nargs=1, default=Defaults.FILENAME,
-    help="Filename prefix", type=click.Path(exists=False, readable=True)
+    help="Output image filename prefix", type=click.Path(exists=False, readable=True)
 )
 @click.option(
     "-L", "--limit", nargs=1, default=Defaults.RESOLUTION_LIMIT,
@@ -23,23 +22,30 @@ from scmapmerge.merger import MapMerger
 )
 @click.option(
     "-D", "--clear", is_flag=True,
-    help="Clear workspace"
+    help="Clear workspace folder"
 )
 @click.option(
     "-N", "--nopause", is_flag=True,
     help="Removes pause before program exit"
 )
 def main(filename: str, limit: int, compress: int, clear: bool, nopause: bool):
-    merger = MapMerger(filename, limit, compress)
+    workspace = Workspace(filename)
+    output = OutputImage(limit, compress)
+    asker = Asker(workspace)
+
+    merger = MapMerger(
+        workspace,
+        output,
+        asker
+    )
 
     print("\n[b purple]STALCRAFT Map Merger[/]")
     print(f"[b]Version {VERSION}[/]")
 
     try:
-        if clear:
-            if asker.ask(asker.CLEAR_WORKSPACE):
-                merger.workspace.clear_all()
-                print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
+        if clear and asker.clear_workspace():
+            merger.workspace.clear_all()
+            print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
             return
 
         merger.run()
@@ -48,7 +54,7 @@ def main(filename: str, limit: int, compress: int, clear: bool, nopause: bool):
         print(f"\n[b red]Error:[/] {err}")
 
     except ScFileException as err:
-        print(f"\n[b red]Unable to convert .ol[/]\n{err}")
+        print(f"\n[b red]Unable to convert map file:[/] {err}")
 
     except Exception as err:
         print(f"\n[b red]Unknown Error:[/] {err}")
