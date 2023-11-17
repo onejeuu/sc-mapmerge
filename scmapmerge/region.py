@@ -3,23 +3,37 @@ from pathlib import Path
 from PIL import Image
 
 from scmapmerge import exceptions as exc
-from scmapmerge.utils import ImgSize
+from scmapmerge.datatype import ImgSize
 
 
 class Region:
     def __init__(self, path: Path):
-        if not path.stem.count(".") == 2:
+        self.path = path
+
+        if not self.path_is_valid:
             raise exc.InvalidRegionFilename(path)
 
-        self.path = path
-        self._prefix, self._x, self._z = path.stem.split(".")
+        self.prefix, self._x, self._z = path.stem.split(".")
+
+        if not self.xz_is_valid:
+            raise exc.InvalidRegionFilename(path)
 
     @property
-    def x(self):
+    def path_is_valid(self) -> bool:
+        return self.path.stem.count(".") == 2
+
+    @property
+    def xz_is_valid(self) -> bool:
+        x = self._x.lstrip("-")
+        z = self._z.lstrip("-")
+        return x.isdigit() and z.isdigit()
+
+    @property
+    def x(self) -> int:
         return int(self._x)
 
     @property
-    def z(self):
+    def z(self) -> int:
         return int(self._z)
 
     def __str__(self):
@@ -32,37 +46,34 @@ class Region:
 class RegionsList(list):
     def __init__(self, regions: list[Region]):
         super().__init__(regions)
-        self.scale = self.get_scale()
+        self.scale = self._get_scale()
 
     @property
-    def min_x(self):
+    def min_x(self) -> int:
         return min(region.x for region in self)
 
     @property
-    def min_z(self):
+    def min_z(self) -> int:
         return min(region.z for region in self)
 
     @property
-    def max_x(self):
+    def max_x(self) -> int:
         return max(region.x for region in self)
 
     @property
-    def max_z(self):
+    def max_z(self) -> int:
         return max(region.z for region in self)
 
     @property
-    def width(self):
+    def width(self) -> int:
         return (abs(self.max_x - self.min_x) + 1) * self.scale
 
     @property
-    def height(self):
+    def height(self) -> int:
         return (abs(self.max_z - self.min_z) + 1) * self.scale
 
-    def sort(self, key=lambda region: (region.x, region.z), reverse: bool = False):
-        super().sort(key=key, reverse=reverse)
-
-    def get_scale(self):
-        sizes = set()
+    def _get_scale(self) -> int:
+        sizes: set[ImgSize] = set()
 
         # Check that all images are square
         for region in self:

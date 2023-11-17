@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import scfile
-from PIL import Image
 from rich import print
 
 from scmapmerge import exceptions as exc
@@ -24,7 +23,7 @@ class MapMerger:
         self.output = output
         self.asker = asker
 
-    def run(self):
+    def run(self) -> None:
         self.check_first_launch()
         self.workspace.create_all()
 
@@ -35,7 +34,7 @@ class MapMerger:
 
         self.merge_to_full_map()
 
-    def check_first_launch(self):
+    def check_first_launch(self) -> None:
         if not self.workspace.exists:
             self.workspace.create_all()
             print(
@@ -44,7 +43,7 @@ class MapMerger:
             )
             input("Press Enter to continue...")
 
-    def convert_to_dds(self):
+    def convert_to_dds(self) -> None:
         ol_files = self.workspace.ol_files
 
         if not ol_files:
@@ -55,7 +54,7 @@ class MapMerger:
 
         self.convert_ol_files(ol_files)
 
-    def convert_ol_files(self, ol_files: list[Path]):
+    def convert_ol_files(self, ol_files: list[Path]) -> None:
         print()
         print("🔄", "[b]Converting files to dds...[/]")
 
@@ -65,32 +64,28 @@ class MapMerger:
                 scfile.ol_to_dds(ol, dds)
                 progress.increment()
 
-    def merge_to_full_map(self):
+    def merge_to_full_map(self) -> None:
         dds_files = self.workspace.dds_files
 
         if not dds_files:
             raise exc.FolderIsEmpty(Folder.CONVERTED, "Convert .ol files to .dds first")
 
         regions = RegionsList([Region(dds) for dds in dds_files])
-        regions.sort()
 
-        self.output.create(regions)
-
+        self.output.create_image(regions)
         self.paste_regions(regions)
-
         self.save_output_image()
 
-    def paste_regions(self, regions: RegionsList):
+    def paste_regions(self, regions: RegionsList) -> None:
         print()
         print("🔗", "[b]Merging to full map...[/]")
 
         with FilesProgress(total=len(regions)) as progress:
             for region in regions:
-                with Image.open(region.path) as img:
-                    self.output.paste(img, region, regions)
+                self.output.paste(region, regions)
                 progress.increment()
 
-    def save_output_image(self):
+    def save_output_image(self) -> None:
         print()
         print("📥", "[b]Saving image file...[/]")
 

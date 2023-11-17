@@ -22,37 +22,37 @@ class Workspace:
     def is_empty(self, folder: Path) -> bool:
         return not any(self.files(folder))
 
-    def create_all(self):
+    def create_all(self) -> None:
         for folder in self.folders:
             folder.mkdir(parents=True, exist_ok=True)
 
-    def clear(self, folder: Path):
+    def clear(self, folder: Path) -> None:
         for entry in self.files(folder):
             entry.unlink(missing_ok=True)
 
-    def clear_all(self):
+    def clear_all(self) -> None:
         for folder in self.folders:
             self.clear(folder)
 
-    def files(self, folder: Path):
-        return (entry for entry in folder.iterdir() if entry.is_file())
+    def files(self, folder: Path) -> list[Path]:
+        return [entry for entry in folder.iterdir() if entry.is_file()]
 
-    def contains_empty_maps(self):
+    def contains_empty_maps(self) -> bool:
         return any(entry.is_file() and entry.stat().st_size < MIN_FILESIZE for entry in self.ol_files)
 
     @property
-    def ol_files(self):
+    def ol_files(self) -> list[Path]:
         return [f for f in self.files(Folder.ENCRYPTED) if f.suffix == '.ol']
 
     @property
-    def dds_files(self):
+    def dds_files(self) -> list[Path]:
         return [f for f in self.files(Folder.CONVERTED) if f.suffix == '.dds']
 
     @property
-    def not_empty_ol_files(self):
+    def not_empty_ol_files(self) -> list[Path]:
         return [f for f in self.ol_files if f.stat().st_size > MIN_FILESIZE]
 
-    def get_output_image_path(self):
+    def get_output_image_path(self) -> Path:
         folder = Path(Folder.OUTPUT)
         current = datetime.now()
         date = current.strftime("%Y.%m.%d")

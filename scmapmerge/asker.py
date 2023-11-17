@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from rich import print
 from rich.prompt import Confirm
 
 from scmapmerge.consts import Folder
@@ -10,11 +11,6 @@ from scmapmerge.workspace import Workspace
 class Prompt:
     question: str
     default: bool
-
-
-def ask(prompt: Prompt):
-    print()
-    return Confirm.ask(prompt.question, default=prompt.default)
 
 
 CLEAR_WORKSPACE = Prompt(
@@ -44,20 +40,28 @@ SKIP_EMPTY_MAPS = Prompt(
 )
 
 
+def ask(prompt: Prompt):
+    print()
+    return Confirm.ask(prompt.question, default=prompt.default)
+
+
 class Asker:
     def __init__(self, workspace: Workspace):
         self.workspace = workspace
 
-    def clear_workspace(self):
-        return ask(CLEAR_WORKSPACE)
+    def clear_workspace(self) -> None:
+        if ask(CLEAR_WORKSPACE):
+            self.workspace.clear_all()
+            print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
 
-    def clear_converted(self):
+    def clear_converted(self) -> None:
         if not self.workspace.is_empty(Folder.CONVERTED) and ask(CLEAR_CONVERTED):
             self.workspace.clear(Folder.CONVERTED)
 
-    def skip_converting(self):
+    def skip_converting(self) -> bool:
         if not self.workspace.is_empty(Folder.CONVERTED):
             return ask(SKIP_CONVERTING)
+        return False
 
-    def skip_empty_maps(self):
+    def skip_empty_maps(self) -> bool:
         return ask(SKIP_EMPTY_MAPS)

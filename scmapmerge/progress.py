@@ -1,16 +1,17 @@
 from rich import progress
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 
 class Description(NamedTuple):
-    TASK = "⏳ [b deep_pink2]Wait[/]"
+    WAIT = "⏳ [b deep_pink2]Wait[/]"
     DONE = "✅ [b yellow4]Done[/]"
+    ERROR = "❌ [b red3]Error[/]"
 
 
 class FilesProgress:
     def __init__(self, total: int):
         self.progress = progress.Progress(*self.columns)
-        self.task_id = self.progress.add_task(Description.TASK, total=total)
+        self.task_id = self.progress.add_task(Description.WAIT, total=total)
         self.progress.start()
 
     @property
@@ -22,15 +23,25 @@ class FilesProgress:
             progress.TaskProgressColumn()
         )
 
-    def increment(self):
+    def increment(self) -> None:
         self.progress.advance(self.task_id, 1)
 
-    def done(self):
-        self.progress.update(self.task_id, description=Description.DONE)
-        self.progress.stop()
+    def update_description(self, description: Optional[str] = None) -> None:
+        self.progress.update(self.task_id, description=description)
+
+    def done(self) -> None:
+        self.update_description(Description.DONE)
+
+    def error(self) -> None:
+        self.update_description(Description.ERROR)
 
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
-        self.done()
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            self.done()
+        else:
+            self.error()
+
+        self.progress.stop()

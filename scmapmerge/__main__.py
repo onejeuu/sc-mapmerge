@@ -31,25 +31,23 @@ from scmapmerge.workspace import Workspace
     "-N", "--nopause", is_flag=True,
     help="Removes pause before program exit"
 )
-def main(filename: str, limit: int, compress: int, clear: bool, nopause: bool):
+@click.option(
+    "--debug", is_flag=True,
+    help="Draws debug information on regions"
+)
+def main(filename: str, limit: int, compress: int, clear: bool, nopause: bool, debug: bool):
     workspace = Workspace(filename)
-    output = OutputImage(limit, compress)
+    output = OutputImage(limit, compress, debug)
     asker = Asker(workspace)
 
-    merger = MapMerger(
-        workspace,
-        output,
-        asker
-    )
+    merger = MapMerger(workspace, output, asker)
 
     print("\n[b purple]STALCRAFT Map Merger[/]")
     print(f"[b]Version {VERSION}[/]")
 
     try:
         if clear:
-            if asker.clear_workspace():
-                workspace.clear_all()
-                print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
+            asker.clear_workspace()
             return
 
         merger.run()

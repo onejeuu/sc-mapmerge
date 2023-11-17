@@ -1,5 +1,6 @@
 from pathlib import Path
-from utils import ImgSize
+
+from scmapmerge.datatype import ImgSize
 
 
 class ScMapMergeException(Exception):
@@ -15,7 +16,7 @@ class InvalidRegionFilename(RegionError):
         self.path = path
 
     def __str__(self):
-        return f"Region (image file) '{self.path.as_posix()}' has invalid filename format."
+        return f"Region (map image file) '{self.path.as_posix()}' has invalid filename format."
 
 
 class FolderIsEmpty(ScMapMergeException):
