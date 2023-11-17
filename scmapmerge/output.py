@@ -1,9 +1,10 @@
 from pathlib import Path
+from typing import NamedTuple
 
 from PIL import Image, ImageDraw, ImageFont
 
-from scmapmerge.consts import MAP_BACKGROUND_COLOR, Debug, Defaults
-from scmapmerge.datatype import Coords, ImgSize, Rectangle
+from scmapmerge.consts import MAP_BACKGROUND_COLOR, Defaults, Folder
+from scmapmerge.datatype import Color, Coords, ImgSize, Rectangle
 from scmapmerge.exceptions import OutputImageTooLarge
 from scmapmerge.region import Region, RegionsList
 
@@ -19,11 +20,9 @@ class OutputImage:
         self.compress = compress
         self.debug = debug
 
-        self._size = ImgSize(0, 0)
-
     @property
     def image_created(self) -> bool:
-        return isinstance(self._image, Image.Image)
+        return hasattr(self, "_image") and isinstance(self._image, Image.Image)
 
     def create_image(self, regions: RegionsList) -> None:
         size = ImgSize(
@@ -51,11 +50,7 @@ class OutputImage:
 
         with Image.open(region.path) as img:
             if self.debug:
-                self._draw_debug(
-                    img,
-                    font_size = self._get_font_size(regions),
-                    text = self._get_debug_text(region, x, y, xy)
-                )
+                DebugRender(img, scale=regions.scale).draw(region, x, y, xy)
 
             if self.image_created:
                 self._image.paste(img, xy)
@@ -67,19 +62,53 @@ class OutputImage:
                 compress_level=self.compress
             )
 
-    def _get_font_size(self, regions: RegionsList) -> int:
-        return max(Debug.FONT_SIZE_MINIMUM, regions.scale // Debug.FONT_SIZE_FACTOR)
 
-    def _get_debug_text(self, region: Region, x: int, y: int, xy: Coords) -> str:
-        return f"{region.path.stem}\n{x} {y}\n{xy.x}px {xy.y}px"
+class Debug(NamedTuple):
+    DRAW_TEXT = True
+    DRAW_OUTLINE = True
 
-    def _draw_debug(self, img: Image.Image, font_size: int, text: str) -> None:
-        draw = ImageDraw.Draw(img)
+    DEFAULT_COLOR = Color(0, 255, 255)
+    TEXT_COLOR = DEFAULT_COLOR
+    OUTLINE_COLOR = DEFAULT_COLOR
 
+    OUTLINE_WIDTH = 4
+
+    FONT_FILE = "RobotoMono.ttf"
+    FONT_SIZE_FACTOR = 32
+    FONT_SIZE_MINIMUM = 16
+
+
+class DebugRender:
+    def __init__(self, img: Image.Image, scale: int):
+        self.scale = scale
+        self.font = ImageFont.truetype(self.font_path, self.font_size)
+
+        self._img = img
+        self._imgdraw = ImageDraw.Draw(img)
+
+    @property
+    def font_path(self) -> str:
+        return Path(Folder.ASSETS, Debug.FONT_FILE).as_posix()
+
+    @property
+    def font_size(self) -> int:
+        return max(Debug.FONT_SIZE_MINIMUM, self.scale // Debug.FONT_SIZE_FACTOR)
+
+    @property
+    def outline_rect(self):
+        xy = Coords(1, 1)
+        size = ImgSize(self._img.width - 1, self._img.height - 1)
+        return Rectangle(xy, size)
+
+    def draw_text(self, text: str):
+        self._imgdraw.text(Coords(16, 4), text, font=self.font, fill=Debug.TEXT_COLOR)
+
+    def draw_rect(self, rect: Rectangle):
+        self._imgdraw.rectangle(rect, outline=Debug.OUTLINE_COLOR, width=Debug.OUTLINE_WIDTH)
+
+    def draw(self, region: Region, x: int, y: int, xy: Coords):
         if Debug.DRAW_TEXT:
-            font = ImageFont.truetype("assets/RobotoMono.ttf", font_size)
-            draw.text(Coords(16, 4), text, font=font, fill=Debug.TEXT_COLOR)
+            self.draw_text(f"{region.path.stem}\n{x} {y}\n{xy.x}px {xy.y}px")
 
         if Debug.DRAW_OUTLINE:
-            rect = Rectangle(Coords(1, 1), ImgSize(img.width-1, img.height-1))
-            draw.rectangle(rect, outline=Debug.OUTLINE_COLOR, width=Debug.OUTLINE_WIDTH)
+            self.draw_rect(self.outline_rect)

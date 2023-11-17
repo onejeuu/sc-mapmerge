@@ -30,17 +30,4 @@ class Folder(NamedTuple):
     ENCRYPTED = Path(WORKSPACE, "1-encrypted")
     CONVERTED = Path(WORKSPACE, "2-converted")
     OUTPUT =    Path(WORKSPACE, "3-output")
-
-
-class Debug(NamedTuple):
-    DRAW_TEXT = True
-    DRAW_OUTLINE = True
-
-    COLOR = Color(0, 255, 255)
-    TEXT_COLOR = COLOR
-    OUTLINE_COLOR = COLOR
-
-    OUTLINE_WIDTH = 4
-
-    FONT_SIZE_FACTOR = 32
-    FONT_SIZE_MINIMUM = 16
+    ASSETS = Path("assets")
