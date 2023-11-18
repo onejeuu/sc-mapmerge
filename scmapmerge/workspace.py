@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from scmapmerge.consts import MIN_FILESIZE, Folder
+from scmapmerge.consts import MINIMUM_MAP_FILE_SIZE, Folder
 
 
 class Workspace:
@@ -38,7 +38,7 @@ class Workspace:
         return [entry for entry in folder.iterdir() if entry.is_file()]
 
     def contains_empty_maps(self) -> bool:
-        return any(entry.is_file() and entry.stat().st_size < MIN_FILESIZE for entry in self.ol_files)
+        return any(entry.is_file() and entry.stat().st_size < MINIMUM_MAP_FILE_SIZE for entry in self.ol_files)
 
     @property
     def ol_files(self) -> list[Path]:
@@ -50,7 +50,7 @@ class Workspace:
 
     @property
     def not_empty_ol_files(self) -> list[Path]:
-        return [f for f in self.ol_files if f.stat().st_size > MIN_FILESIZE]
+        return [f for f in self.ol_files if f.stat().st_size > MINIMUM_MAP_FILE_SIZE]
 
     def get_output_image_path(self) -> Path:
         folder = Path(Folder.OUTPUT)
