@@ -25,7 +25,8 @@ class FileName:
         count = 2
 
         while self.path.exists():
-            self.filename = f"{self.filename} ({count})"
+            self.filename = self.filename.rstrip(f" ({count-1})")
+            self.filename += f" ({count})"
             count += 1
 
     def as_path(self) -> Path:
