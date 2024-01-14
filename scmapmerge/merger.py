@@ -1,15 +1,14 @@
 from pathlib import Path
 
-import scfile
 from rich import print
+from scfile.utils import convert
 
-from scmapmerge import exceptions as exc
 from scmapmerge.asker import Asker
-from scmapmerge.consts import Folder
-from scmapmerge.output import OutputImage
-from scmapmerge.progress import FilesProgress
-from scmapmerge.region import Region, RegionsList
-from scmapmerge.workspace import Workspace
+from scmapmerge.consts import Folder as F
+from scmapmerge.image.output import OutputImage
+from scmapmerge.utils.progress import FilesProgress
+from scmapmerge.utils.region import Region, RegionsList
+from scmapmerge.utils.workspace import Workspace
 
 
 class MapMerger:
@@ -23,54 +22,51 @@ class MapMerger:
         self.output = output
         self.asker = asker
 
-    def run(self) -> None:
+    def merge(self) -> None:
         self.check_first_launch()
-        self.workspace.create_all()
+        self.workspace.create_folders()
 
         self.asker.clear_converted()
 
         if not self.asker.skip_converting():
-            self.convert_to_dds()
+            self.convert_encrypted()
 
         self.merge_to_full_map()
 
     def check_first_launch(self) -> None:
         if not self.workspace.exists:
-            self.workspace.create_all()
+            self.workspace.create_folders()
             print(
                 "\n[b yellow]Workspace has been successfully created.\n"
-                f"Place .ol map files in[/] '{Folder.ENCRYPTED.as_posix()}' [b yellow]folder.[/]"
+                f"Place map files (.ol or .mic) in[/] '{F.ENCRYPTED.as_posix()}' [b yellow]folder.[/]"
             )
             input("Press Enter to continue...")
 
-    def convert_to_dds(self) -> None:
-        ol_files = self.workspace.ol_files
-
-        if not ol_files:
-            raise exc.FolderIsEmpty(Folder.ENCRYPTED, "Put .ol map files there")
+    def convert_encrypted(self) -> None:
+        encrypted = self.workspace.get_encrypted_files()
 
         if self.workspace.contains_empty_maps() and self.asker.skip_empty_maps():
-            ol_files = self.workspace.not_empty_ol_files
+            encrypted = self.workspace.filter_empty_maps(encrypted)
 
-        self.convert_ol_files(ol_files)
+        self.convert_files(encrypted)
 
-    def convert_ol_files(self, ol_files: list[Path]) -> None:
+    def convert_files(self, encrypted: list[Path]) -> None:
+        old_suffix = encrypted[0].suffix
+        new_suffix = ".dds" if old_suffix == ".ol" else ".png"
+
         print()
-        print("🔄", "[b]Converting files to dds...[/]")
+        print("🔄", f"[b]Converting files to {new_suffix}...[/]")
 
-        with FilesProgress(total=len(ol_files)) as progress:
-            for ol in ol_files:
-                dds = Path(Folder.CONVERTED, ol.with_suffix(".dds").name)
-                scfile.ol_to_dds(ol, dds)
+        with FilesProgress(total=len(encrypted)) as progress:
+            for path in encrypted:
+                converted = Path(F.CONVERTED, path.with_suffix(new_suffix).name)
+                convert.auto(path, converted)
                 progress.increment()
 
     def merge_to_full_map(self) -> None:
-        dds_files = self.workspace.dds_files
+        converted = self.workspace.get_converted_files()
 
-        if not dds_files:
-            raise exc.FolderIsEmpty(Folder.CONVERTED, "Convert .ol files to .dds first")
-
-        regions = RegionsList([Region(dds) for dds in dds_files])
+        regions = RegionsList([Region(dds) for dds in converted])
 
         self.output.create_image(regions)
         self.paste_regions(regions)
@@ -90,7 +86,6 @@ class MapMerger:
         print("📥", "[b]Saving image file...[/]")
 
         path = self.workspace.get_output_image_path()
-
         self.output.save(path)
 
         print("🦄", f"[b purple]Image saved as[/] '{path}'")

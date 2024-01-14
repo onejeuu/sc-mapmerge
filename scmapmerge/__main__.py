@@ -5,15 +5,15 @@ from scfile.exceptions import ScFileException
 from scmapmerge.asker import Asker
 from scmapmerge.consts import VERSION, Defaults
 from scmapmerge.exceptions import ScMapMergeException
+from scmapmerge.image.output import OutputImage
 from scmapmerge.merger import MapMerger
-from scmapmerge.output import OutputImage
-from scmapmerge.workspace import Workspace
+from scmapmerge.utils.workspace import Workspace
 
 
 @click.command()
 @click.option(
     "-F", "--filename", nargs=1, default=Defaults.FILENAME,
-    help="Output image filename prefix", type=click.Path(exists=False, readable=True)
+    help="Output image filename", type=click.Path(exists=False, readable=True)
 )
 @click.option(
     "-L", "--limit", nargs=1, default=Defaults.RESOLUTION_LIMIT,
@@ -50,7 +50,7 @@ def main(filename: str, limit: int, compress: int, clear: bool, nopause: bool, d
             asker.clear_workspace()
             return
 
-        merger.run()
+        merger.merge()
 
     except ScMapMergeException as err:
         print(f"\n[b red]Error:[/] {err}")

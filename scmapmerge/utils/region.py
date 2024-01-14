@@ -7,23 +7,27 @@ from scmapmerge.datatype import ImgSize
 
 
 class Region:
+    PREFIX = "r."
+
     def __init__(self, path: Path):
         self.path = path
 
-        if not self.path_is_valid:
+        if not self.validate_name():
             raise exc.InvalidRegionFilename(path)
 
-        self.prefix, self._x, self._z = path.stem.split(".")
+        self._x, self._z = self.coords.split(".")
 
-        if not self.xz_is_valid:
+        if not self.validate_coords():
             raise exc.InvalidRegionFilename(path)
 
     @property
-    def path_is_valid(self) -> bool:
-        return self.path.stem.count(".") == 2
+    def coords(self):
+        return self.path.stem.lstrip(self.PREFIX)
 
-    @property
-    def xz_is_valid(self) -> bool:
+    def validate_name(self) -> bool:
+        return self.coords.count(".") == 1
+
+    def validate_coords(self) -> bool:
         x = self._x.lstrip("-")
         z = self._z.lstrip("-")
         return x.isdigit() and z.isdigit()
