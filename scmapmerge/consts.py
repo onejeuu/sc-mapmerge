@@ -18,7 +18,7 @@ class MapBackground(NamedTuple):
 
 
 class Defaults(NamedTuple):
-    FILENAME = "Map %Y.%m.%d.png"
+    FILENAME = "Map %Y.%m.%d"
 
     # ? to prevent memory overflow
     RESOLUTION_LIMIT = 1_000_000_000

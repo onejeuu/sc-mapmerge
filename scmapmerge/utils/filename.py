@@ -8,13 +8,14 @@ PathLike: TypeAlias = str | os.PathLike[str] | Path
 
 
 class FileName:
-    def __init__(self, base_path: PathLike, template: str):
+    def __init__(self, base_path: PathLike, template: str, suffix: str):
         self.base_path = base_path
         self.filename = template
+        self.suffix = suffix
 
     @property
     def path(self):
-        return Path(self.base_path, self.filename)
+        return Path(self.base_path, f"{self.filename}{self.suffix}")
 
     def _parse_datetime(self):
         now = datetime.now()

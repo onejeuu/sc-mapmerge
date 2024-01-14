@@ -8,6 +8,7 @@ from scmapmerge.utils.filename import FileName
 
 class Workspace:
     FOLDERS = [F.WORKSPACE, F.ENCRYPTED, F.CONVERTED, F.OUTPUT]
+    SUFFIX = ".png"
 
     def __init__(self, filename: str):
         self.filename = filename
@@ -76,5 +77,5 @@ class Workspace:
 
     def get_output_image_path(self) -> Path:
         """Output image path based on filename template."""
-        filename = FileName(F.OUTPUT, self.filename)
+        filename = FileName(F.OUTPUT, self.filename, self.SUFFIX)
         return filename.as_path()
