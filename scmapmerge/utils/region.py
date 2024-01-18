@@ -110,13 +110,13 @@ class EncryptedRegions(RegionsList):
 
     def contains_empty(self) -> bool:
         return any(
-            r.filesize <= MapFile.MINIMUM_SIZE
+            r.filesize <= MapFile.MINIMUM_SIZE and r.region not in self.preset_regions
             for r in self.regions
         )
 
     def filter_empty(self):
         self.filter(
-            lambda r: r.filesize > MapFile.MINIMUM_SIZE or r.region not in self.preset_regions
+            lambda r: r.filesize > MapFile.MINIMUM_SIZE or r.region in self.preset_regions
         )
 
     def filter_preset(self):
@@ -130,7 +130,7 @@ class EncryptedRegions(RegionsList):
 
     @property
     def contains_preset(self) -> bool:
-        return self.regions_set.issuperset(self.preset_regions)
+        return self.regions_set.issuperset(set(self.preset_regions))
 
     @property
     def missing_preset_regions(self) -> set:

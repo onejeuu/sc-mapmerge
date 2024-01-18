@@ -72,9 +72,10 @@ class OutputImage:
             self._img.paste(img, xy)
 
     def crop(self, box: Box) -> None:
-        self._img = self._img.crop(
-            box=box.offset(self.size)
-        )
+        box = box.offset(self.size)
+
+        if box.valid:
+            self._img = self._img.crop(box)
 
     def save(self, path: Path) -> None:
         self._img.save(

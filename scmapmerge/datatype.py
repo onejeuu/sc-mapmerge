@@ -45,6 +45,10 @@ class Box(NamedTuple):
     def offset(self, size: ImgSize) -> "Box":
         return Box(self.left, self.top, size.w - self.right, size.h - self.bottom)
 
+    @property
+    def valid(self) -> bool:
+        return self.right > self.left and self.bottom > self.top
+
 
 class Rectangle(NamedTuple):
     """Draw Rectangle. coordinates and size."""

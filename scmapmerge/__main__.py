@@ -31,43 +31,43 @@ class PresetType(click.ParamType):
 @click.command()
 @click.option(
     "-F", "--filename", nargs=1, default=Defaults.FILENAME,
-    help="Output filename", type=click.Path(exists=False, readable=True)
+    help="Output filename.", type=click.Path(exists=False, readable=True)
 )
 @click.option(
     "-S", "--suffix", nargs=1, default=Defaults.SUFFIX,
-    help=f"Output format ({join(OutputSuffix)})", type=OutputSuffix
+    help=f"Output format ({join(OutputSuffix)}).", type=OutputSuffix
 )
 @click.option(
     "-P", "--preset", default=None,
-    help=f"Output preset ({join(PRESETS)})", type=PresetType()
+    help=f"Output preset ({join(PRESETS)}).", type=PresetType()
 )
 @click.option(
     "-L", "--limit", nargs=1, default=Defaults.RESOLUTION_LIMIT,
-    help="Output resolution limit", type=int
+    help="Output resolution limit.", type=int
 )
 @click.option(
     "-D", "--clear", is_flag=True,
-    help="Clear workspace folder"
+    help="Clear workspace folder."
 )
 @click.option(
     "-N", "--nopause", is_flag=True,
-    help="Removes pause before program exit"
+    help="Removes pause before program exit."
 )
 @click.option(
     "--compress", default=Defaults.COMPRESS_LEVEL,
-    help="Output compression level (png)", type=click.IntRange(0, 9)
+    help="Output compression level (png).", type=click.IntRange(0, 9)
 )
 @click.option(
     "--quality", default=Defaults.QUALITY,
-    help="Output quality (jpg, webp)", type=click.IntRange(0, 100)
+    help="Output quality (jpg, webp).", type=click.IntRange(0, 100)
 )
 @click.option(
     "--overwrite", is_flag=True,
-    help="Overwrites an existing output image"
+    help="Overwrites an existing output image."
 )
 @click.option(
     "--debug", is_flag=True,
-    help="Draws debug information on regions"
+    help="Draws debug information on regions."
 )
 def main(
     filename: str,
