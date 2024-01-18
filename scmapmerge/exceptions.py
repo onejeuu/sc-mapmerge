@@ -32,6 +32,12 @@ class ChunkSizeError(ScMapMergeException):
     pass
 
 
+class PresetError(ScMapMergeException):
+    # TODO: improve: add explanation which regions missing
+    def __str__(self):
+        return "Not enough regions for selected preset"
+
+
 class ImageIsNotSquare(ChunkSizeError):
     def __init__(self, size: ImgSize):
         self.size = size

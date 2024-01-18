@@ -1,14 +1,25 @@
 from typing import NamedTuple
 
 
-class Coords(NamedTuple):
-    """Coordinates. x and y."""
+class Region(NamedTuple):
+    """Minecraft region. x and z."""
+    x: int
+    z: int
+
+
+class ImgCoords(NamedTuple):
+    """Image coordinates. x and y."""
     x: int
     y: int
 
 
+class Prompt(NamedTuple):
+    message: str
+    default: bool
+
+
 class ImgSize(NamedTuple):
-    """Image Size in pixels. width and height"""
+    """Image size in pixels. width and height"""
     w: int
     h: int
 
@@ -18,13 +29,27 @@ class ImgSize(NamedTuple):
 
 
 class Color(NamedTuple):
-    """RGB Colors. red, green and blue."""
+    """RGB colors. red, green and blue."""
     r: int
     g: int
     b: int
 
 
+class Box(NamedTuple):
+    """Box. left, top, right, bottom."""
+    left: int
+    top: int
+    right: int
+    bottom: int
+
+
 class Rectangle(NamedTuple):
     """Draw Rectangle. coordinates and size."""
-    xy: Coords
+    xy: ImgCoords
     size: ImgSize
+
+
+class Range(NamedTuple):
+    """Range. start and stop."""
+    start: int
+    stop: int

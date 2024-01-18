@@ -1,23 +1,21 @@
-from typing import NamedTuple
-
 from PIL import Image, ImageDraw, ImageFont
 
-from scmapmerge.datatype import Color, Coords, ImgSize, Rectangle
-from scmapmerge.utils.region import Region
+from scmapmerge.datatype import Color, ImgCoords, ImgSize, Rectangle
+from scmapmerge.utils.region import RegionFile
 
 
-class Draw(NamedTuple):
+class Draw:
     TEXT = True
     OUTLINE = True
 
 
-class Colors(NamedTuple):
+class Colors:
     DEFAULT = Color(0, 255, 255)
     TEXT = DEFAULT
     OUTLINE = DEFAULT
 
 
-class FontSize(NamedTuple):
+class FontSize:
     FACTOR = 32
     MINIMUM = 16
 
@@ -36,17 +34,17 @@ class DebugRender:
 
     @property
     def outline_rect(self):
-        xy = Coords(1, 1)
+        xy = ImgCoords(1, 1)
         size = ImgSize(self._img.width - 1, self._img.height - 1)
         return Rectangle(xy, size)
 
     def draw_text(self, text: str):
-        self._imgdraw.text(Coords(16, 4), text, font=self.font, fill=Colors.TEXT)
+        self._imgdraw.text(ImgCoords(16, 4), text, font=self.font, fill=Colors.TEXT)
 
     def draw_rect(self, rect: Rectangle):
         self._imgdraw.rectangle(rect, outline=Colors.OUTLINE, width=4)
 
-    def draw(self, region: Region, x: int, y: int, coords: Coords):
+    def draw(self, region: RegionFile, x: int, y: int, coords: ImgCoords):
         if Draw.TEXT:
             self.draw_text(f"{region.path.stem}\n{x} {y}\n{coords.x}px {coords.y}px")
 

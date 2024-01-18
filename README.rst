@@ -41,11 +41,19 @@ Options
 
 - ``--help`` Show help message.
 
-- ``-F`` ``--filename`` - Output image filename. Defaults to "Map %Y.%m.%d". Accepts datetime formatting.
+- ``-F`` ``--filename`` - Output filename. Defaults to "Map %Y.%m.%d". Accepts datetime formatting.
 
-- ``-L`` ``--limit`` - Output image resolution limit, to prevent memory overflow.
+- ``-S`` ``--suffix`` - Output format. (png, jpg, webp, bmp, dds). Defaults to jpg.
 
-- ``-C`` ``--compress`` - PNG compression level. From 0 (min) to 9 (max). Defaults to 6.
+- ``-P`` ``--preset`` - Output preset. (zone, newsever).
+
+- ``--limit`` - Output resolution limit, to prevent memory overflow.
+
+- ``--compress`` - Output compression level (png). From 0 to 9. Defaults to 6.
+
+- ``--quality`` - Output quality % (jpg, webp). From 0 to 100. Defaults to 90.
+
+- ``--overwrite`` - Overwrite output image if exists.
 
 - ``-D`` ``--clear`` - Clear workspace folder. Deletes all files.
 

@@ -1,8 +1,8 @@
 from rich import progress
-from typing import NamedTuple, Optional
+from typing import Optional
 
 
-class Description(NamedTuple):
+class Description:
     WAIT = "⏳ [b deep_pink2]Wait[/]"
     DONE = "✅ [b yellow4]Done[/]"
     ERROR = "❌ [b red3]Error[/]"

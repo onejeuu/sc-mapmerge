@@ -8,26 +8,32 @@ PathLike: TypeAlias = str | os.PathLike[str] | Path
 
 
 class FileName:
-    def __init__(self, base_path: PathLike, template: str, suffix: str):
+    DEFAULT_COUNT = 2
+
+    def __init__(self, base_path: PathLike, template: str, suffix: str, overwrite: bool):
         self.base_path = base_path
         self.filename = template
         self.suffix = suffix
+        self.overwrite = overwrite
+
+        self.count = self.DEFAULT_COUNT
 
     @property
     def path(self):
-        return Path(self.base_path, f"{self.filename}{self.suffix}")
+        return Path(self.base_path, f"{self.filename}.{self.suffix}")
 
     def _parse_datetime(self):
         now = datetime.now()
         self.filename = now.strftime(self.filename)
 
     def _check_uniqueness(self):
-        count = 2
+        if not self.overwrite:
+            while self.path.exists():
+                # removing previous count
+                self.filename = self.filename.rstrip(f" ({self.count - 1})")
 
-        while self.path.exists():
-            self.filename = self.filename.rstrip(f" ({count-1})")
-            self.filename += f" ({count})"
-            count += 1
+                self.filename += f" ({self.count})"
+                self.count += 1
 
     def as_path(self) -> Path:
         self._parse_datetime()

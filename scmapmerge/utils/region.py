@@ -1,56 +1,91 @@
 from pathlib import Path
+from typing import List
 
 from PIL import Image
 
 from scmapmerge import exceptions as exc
-from scmapmerge.datatype import ImgSize
+from scmapmerge.datatype import ImgSize, Region
+from scmapmerge.consts import MapFile
 
 
-class Region:
-    PREFIX = "r."
-
+class RegionFile:
     def __init__(self, path: Path):
         self.path = path
 
-        if not self.validate_name():
+        coords = self._parse_filename()
+
+        if not coords.count(".") == 1:
             raise exc.InvalidRegionFilename(path)
 
-        self._x, self._z = self.coords.split(".")
+        x, z = coords.split(".")
 
-        if not self.validate_coords():
+        if not self._is_valid_coords(x, z):
             raise exc.InvalidRegionFilename(path)
 
-    @property
-    def coords(self):
-        return self.path.stem.lstrip(self.PREFIX)
-
-    def validate_name(self) -> bool:
-        return self.coords.count(".") == 1
-
-    def validate_coords(self) -> bool:
-        x = self._x.lstrip("-")
-        z = self._z.lstrip("-")
-        return x.isdigit() and z.isdigit()
+        # TODO: improve: rename for no confusion
+        self.region = Region(int(x), int(z))
 
     @property
     def x(self) -> int:
-        return int(self._x)
+        return self.region.x
 
     @property
     def z(self) -> int:
-        return int(self._z)
+        return self.region.z
+
+    @property
+    def filesize(self) -> int:
+        return self.path.stat().st_size
+
+    def _parse_filename(self):
+        return self.path.stem.replace("_", ".").lstrip(MapFile.PREFIX)
+
+    def _is_valid_coords(self, *values: str):
+        return all(value.lstrip("-").isdigit() for value in values)
 
     def __str__(self):
-        return f"<Region> {self.x=} {self.z=}"
+        return f"{self.region}"
 
     def __repr__(self):
         return str(self)
 
 
-class RegionsList(list):
-    def __init__(self, regions: list[Region]):
-        super().__init__(regions)
-        self.scale = self._get_scale()
+class RegionsList(List[RegionFile]):
+    @classmethod
+    def from_pathes(cls, pathes: list[Path]):
+        return cls([RegionFile(path) for path in pathes])
+
+
+class EncryptedRegions(RegionsList):
+    # TODO: improve: this is awful
+
+    def contains_empty(self) -> bool:
+        return any(
+            region.filesize < MapFile.MINIMUM_SIZE
+            for region in self
+        )
+
+    def filter_empty(self):
+        return EncryptedRegions(
+            list(filter(lambda region: region.filesize > MapFile.MINIMUM_SIZE, self))
+        )
+
+    def contains_preset(self, preset_regions: list[Region]) -> bool:
+        # TODO: improve: make it more readable
+        r1 = set(region.region for region in self)
+        r2 = set(preset_regions)
+        return r2.issubset(r1)
+
+    def filter_preset(self, preset_regions: list[Region]):
+        return EncryptedRegions(
+            list(filter(lambda region: region.region in preset_regions, self))
+        )
+
+
+class ConvertedRegions(RegionsList):
+    # TODO: improve: this too
+
+    DEFAULT_SCALE = 512
 
     @property
     def min_x(self) -> int:
@@ -69,6 +104,10 @@ class RegionsList(list):
         return max(region.z for region in self)
 
     @property
+    def scale(self):
+        return self._scale or self.DEFAULT_SCALE
+
+    @property
     def width(self) -> int:
         return (abs(self.max_x - self.min_x) + 1) * self.scale
 
@@ -76,7 +115,7 @@ class RegionsList(list):
     def height(self) -> int:
         return (abs(self.max_z - self.min_z) + 1) * self.scale
 
-    def _get_scale(self) -> int:
+    def find_scale(self) -> int:
         sizes: set[ImgSize] = set()
 
         # Check that all images are square
@@ -94,7 +133,5 @@ class RegionsList(list):
             raise exc.ImagesSizesNotSame(sizes)
 
         size = sizes.pop()
-        return size.w
-
-    def __repr__(self):
-        return f"<RegionsList> {self.min_x=} {self.min_z=} {self.max_x=} {self.max_z=}"
+        self._scale = size.w
+        return self._scale

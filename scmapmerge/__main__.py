@@ -1,27 +1,62 @@
+from typing import Optional
+
 import click
 from rich import print
 from scfile.exceptions import ScFileException
 
-from scmapmerge.asker import Asker
 from scmapmerge.consts import VERSION, Defaults
+from scmapmerge.enums import OutputSuffix
 from scmapmerge.exceptions import ScMapMergeException
 from scmapmerge.image.output import OutputImage
 from scmapmerge.merger import MapMerger
+from scmapmerge.utils.asker import Question, ask
+from scmapmerge.utils.presets import PRESETS, BasePreset
 from scmapmerge.utils.workspace import Workspace
+
+
+SUFFIXES = [suffix.value for suffix in OutputSuffix]
+PRESET_NAMES = ", ".join(preset.name for preset in PRESETS)
+
+
+class PresetType(click.ParamType):
+    name = "preset"
+
+    # TODO: improve: add type hints
+    def convert(self, value, param, ctx):
+        for preset in PRESETS:
+            if value == preset.name:
+                return preset
+        self.fail(f"Invalid preset: {value}. Available presets are: {PRESET_NAMES}", param, ctx)
 
 
 @click.command()
 @click.option(
     "-F", "--filename", nargs=1, default=Defaults.FILENAME,
-    help="Output image filename", type=click.Path(exists=False, readable=True)
+    help="Output filename", type=click.Path(exists=False, readable=True)
 )
 @click.option(
-    "-L", "--limit", nargs=1, default=Defaults.RESOLUTION_LIMIT,
-    help="Output image resolution limit", type=int
+    "-S", "--suffix", nargs=1, default=Defaults.SUFFIX,
+    help="Output format", type=OutputSuffix
 )
 @click.option(
-    "-C", "--compress", default=Defaults.COMPRESS_LEVEL,
-    help="PNG compression level", type=click.IntRange(0, 9)
+    "-P", "--preset", default=None,
+    help=f"Output preset ({PRESET_NAMES})", type=PresetType()
+)
+@click.option(
+    "--limit", nargs=1, default=Defaults.RESOLUTION_LIMIT,
+    help="Output resolution limit", type=int
+)
+@click.option(
+    "--compress", default=Defaults.COMPRESS_LEVEL,
+    help="Output compression level (png)", type=click.IntRange(0, 9)
+)
+@click.option(
+    "--quality", default=Defaults.QUALITY,
+    help="Output quality (jpg, webp)", type=click.IntRange(0, 100)
+)
+@click.option(
+    "--overwrite", is_flag=True,
+    help="Overwrite output image if exists"
 )
 @click.option(
     "-D", "--clear", is_flag=True,
@@ -35,19 +70,33 @@ from scmapmerge.utils.workspace import Workspace
     "--debug", is_flag=True,
     help="Draws debug information on regions"
 )
-def main(filename: str, limit: int, compress: int, clear: bool, nopause: bool, debug: bool):
-    workspace = Workspace(filename)
-    output = OutputImage(limit, compress, debug)
-    asker = Asker(workspace)
+def main(
+    filename: str,
+    suffix: str,
+    preset: Optional[type[BasePreset]],
+    limit: int,
+    compress: int,
+    quality: int,
+    overwrite: bool,
+    clear: bool,
+    nopause: bool,
+    debug: bool
+):
+    workspace = Workspace(filename, suffix, overwrite)
+    output = OutputImage(suffix, compress, quality, limit, debug)
 
-    merger = MapMerger(workspace, output, asker)
+    merger = MapMerger(workspace, output, preset)
 
     print("\n[b purple]STALCRAFT Map Merger[/]")
-    print(f"[b]Version {VERSION}[/]")
+    print(f"[b]Version: {VERSION}[/]")
+
+    if preset:
+        print(f"[b]Preset: '{preset.name}'[/]")
 
     try:
-        if clear:
-            asker.clear_workspace()
+        if clear and ask(Question.CLEAR_WORKSPACE):
+            workspace.clear_all_folders()
+            print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
             return
 
         merger.merge()

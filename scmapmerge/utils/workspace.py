@@ -1,17 +1,17 @@
 from pathlib import Path
 
 from scmapmerge.consts import Folder as F
-from scmapmerge.consts import MapFile
 from scmapmerge.exceptions import FolderIsEmpty
 from scmapmerge.utils.filename import FileName
 
 
 class Workspace:
     FOLDERS = [F.WORKSPACE, F.ENCRYPTED, F.CONVERTED, F.OUTPUT]
-    SUFFIX = ".png"
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str, suffix: str, overwrite: bool):
         self.filename = filename
+        self.suffix = suffix
+        self.overwrite = overwrite
 
     @property
     def exists(self) -> bool:
@@ -39,23 +39,6 @@ class Workspace:
         for folder in self.FOLDERS:
             self.clear_folder(folder)
 
-    def get_filesize(self, entry: Path) -> int:
-        """File size in bytes."""
-        return entry.stat().st_size
-
-    def contains_empty_maps(self) -> bool:
-        """Checks if encrypted folder contains empty map files."""
-        return any(
-            self.get_filesize(entry) < MapFile.MINIMUM_SIZE
-            for entry in self.get_files(F.ENCRYPTED, ".ol")
-        )
-
-    def filter_empty_maps(self, files: list[Path]) -> list[Path]:
-        """List of files with filesize > limit."""
-        return list(filter(
-            lambda entry: self.get_filesize(entry) > MapFile.MINIMUM_SIZE, files
-        ))
-
     def get_files(self, path: Path, *suffixes: str) -> list[Path]:
         """List of files in folder with given suffixes."""
         return [file for suffix in suffixes for file in path.glob(f"*{suffix}")]
@@ -75,7 +58,7 @@ class Workspace:
         """List of converted files in workspace."""
         return self.get_map_files(F.CONVERTED, ".dds", ".png", hint="Convert map files first")
 
-    def get_output_image_path(self) -> Path:
+    @property
+    def output_image_path(self) -> Path:
         """Output image path based on filename template."""
-        filename = FileName(F.OUTPUT, self.filename, self.SUFFIX)
-        return filename.as_path()
+        return FileName(F.OUTPUT, self.filename, self.suffix, self.overwrite).as_path()
