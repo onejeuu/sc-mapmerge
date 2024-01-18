@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Iterable
 
 import click
 from rich import print
@@ -14,7 +14,8 @@ from scmapmerge.utils.presets import PRESETS, BasePreset
 from scmapmerge.utils.workspace import Workspace
 
 
-PRESET_NAMES = ", ".join(preset.name for preset in PRESETS)
+def join(items: Iterable):
+    return ", ".join(str(item) for item in items)
 
 
 class PresetType(click.ParamType):
@@ -24,8 +25,7 @@ class PresetType(click.ParamType):
         for preset in PRESETS:
             if value == preset.name:
                 return preset
-        self.fail(f"Invalid preset: {value}. Available presets are: {PRESET_NAMES}", param, ctx)
-
+        self.fail(f"Invalid preset: {value}. Available presets are: {join(PRESETS)}", param, ctx)
 
 @click.command()
 @click.option(
@@ -34,11 +34,11 @@ class PresetType(click.ParamType):
 )
 @click.option(
     "-S", "--suffix", nargs=1, default=Defaults.SUFFIX,
-    help="Output format", type=OutputSuffix
+    help=f"Output format ({join(OutputSuffix)})", type=OutputSuffix
 )
 @click.option(
     "-P", "--preset", default=None,
-    help=f"Output preset ({PRESET_NAMES})", type=PresetType()
+    help=f"Output preset ({join(PRESETS)})", type=PresetType()
 )
 @click.option(
     "-L", "--limit", nargs=1, default=Defaults.RESOLUTION_LIMIT,

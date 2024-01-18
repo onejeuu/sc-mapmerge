@@ -24,6 +24,9 @@ class BasePreset(ABC):
     """List of regions required."""
 
     def __str__(self):
+        return self.name
+
+    def __repr__(self):
         return f"<{self.__class__.__name__}> {self.name} crop={self.crop}"
 
 
@@ -57,4 +60,4 @@ class GawrGuraPreset(BasePreset):
     regions = [Region(-5, 10)]
 
 
-PRESETS = [ZonePreset, NewNorthPreset, GawrGuraPreset]
+PRESETS = [ZonePreset(), NewNorthPreset(), GawrGuraPreset()]
