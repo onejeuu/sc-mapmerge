@@ -25,7 +25,7 @@ class PresetType(click.ParamType):
         for preset in PRESETS:
             if value == preset.name:
                 return preset
-        self.fail(f"Invalid preset: {value}. Available presets are: {join(PRESETS)}", param, ctx)
+        self.fail(f"Invalid preset: {value}. Available presets: {join(PRESETS)}", param, ctx)
 
 
 @click.command()
