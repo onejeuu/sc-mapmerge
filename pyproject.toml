@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sc-mapmerge"
-version = "1.5.0-dev.6"
+version = "1.5.0-dev.7"
 description = "Utility for merging stalcraft map into single image"
 authors = ["onejeuu <bloodtrail@beber1k.ru>"]
 license = "MIT"
