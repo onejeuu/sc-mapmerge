@@ -43,8 +43,16 @@ class PresetType(click.ParamType):
     help=f"Output preset ({PRESET_NAMES})", type=PresetType()
 )
 @click.option(
-    "--limit", nargs=1, default=Defaults.RESOLUTION_LIMIT,
+    "-L", "--limit", nargs=1, default=Defaults.RESOLUTION_LIMIT,
     help="Output resolution limit", type=int
+)
+@click.option(
+    "-D", "--clear", is_flag=True,
+    help="Clear workspace folder"
+)
+@click.option(
+    "-N", "--nopause", is_flag=True,
+    help="Removes pause before program exit"
 )
 @click.option(
     "--compress", default=Defaults.COMPRESS_LEVEL,
@@ -56,15 +64,7 @@ class PresetType(click.ParamType):
 )
 @click.option(
     "--overwrite", is_flag=True,
-    help="Overwrite output image if exists"
-)
-@click.option(
-    "-D", "--clear", is_flag=True,
-    help="Clear workspace folder"
-)
-@click.option(
-    "-N", "--nopause", is_flag=True,
-    help="Removes pause before program exit"
+    help="Overwrites an existing output image"
 )
 @click.option(
     "--debug", is_flag=True,
@@ -75,11 +75,11 @@ def main(
     suffix: str,
     preset: Optional[type[BasePreset]],
     limit: int,
+    clear: bool,
+    nopause: bool,
     compress: int,
     quality: int,
     overwrite: bool,
-    clear: bool,
-    nopause: bool,
     debug: bool
 ):
     workspace = Workspace(filename, suffix, overwrite)

@@ -41,23 +41,23 @@ Options
 
 - ``--help`` Show help message.
 
-- ``-F`` ``--filename`` - Output filename. Defaults to "Map %Y.%m.%d". Accepts datetime formatting.
+- ``-F`` ``--filename`` - Output filename. Defaults to ``Map %Y.%m.%d``. Accepts datetime formatting.
 
-- ``-S`` ``--suffix`` - Output format. (png, jpg, webp, bmp, dds). Defaults to jpg.
+- ``-S`` ``--suffix`` - Output format. (``png``, ``jpg``, ``webp``, ``tiff``, ``bmp``, ``dds``). Defaults to ``jpg``.
 
-- ``-P`` ``--preset`` - Output preset. (zone, newsever).
+- ``-P`` ``--preset`` - Output preset. (``zone``, ``newsever``).
 
-- ``--limit`` - Output resolution limit, to prevent memory overflow.
-
-- ``--compress`` - Output compression level (png). From 0 to 9. Defaults to 6.
-
-- ``--quality`` - Output quality % (jpg, webp). From 0 to 100. Defaults to 90.
-
-- ``--overwrite`` - Overwrite output image if exists.
+- ``-L`` ``--limit`` - Output resolution limit, to prevent memory overflow. Defaults to ``1.000.000.000``.
 
 - ``-D`` ``--clear`` - Clear workspace folder. Deletes all files.
 
 - ``-N`` ``--nopause`` - Removes pause before program exit.
+
+- ``--compress`` - Output compression level (``png``). From 0 to 9. Defaults to ``6``.
+
+- ``--quality`` - Output quality % (``jpg``, ``webp``). From 0 to 100. Defaults to ``90``.
+
+- ``--overwrite`` - Overwrites an existing output image.
 
 
 🛠️ Build
