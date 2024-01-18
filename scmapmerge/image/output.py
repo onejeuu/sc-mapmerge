@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from scmapmerge.consts import WEBP_LIMIT, Defaults, MapBackground
-from scmapmerge.datatype import Box, ImgCoords, ImgSize
+from scmapmerge.datatype import Box, ImgCoords, ImgSize, Color
 from scmapmerge.enums import OutputSuffix
 from scmapmerge.exceptions import OutputImageTooLarge, WebpResolutionLimit
 from scmapmerge.image.debug import DebugRender
@@ -11,8 +11,6 @@ from scmapmerge.utils.region import ConvertedRegions, RegionFile
 
 
 class OutputImage:
-    # TODO: improve: so cursed
-
     def __init__(
         self,
         suffix: str = Defaults.SUFFIX,
@@ -27,18 +25,29 @@ class OutputImage:
         self.quality = quality
         self.debug = debug
 
-    @property
-    def image_created(self) -> bool:
-        return hasattr(self, "_img") and isinstance(self._img, Image.Image)
+        self._create_blank_image()
+        self._write_blank_text()
+
+    def _create(self, size: ImgSize, color: Color):
+        return Image.new(mode="RGB", size=size, color=color)
+
+    def _create_blank_image(self) -> None:
+        self._img = self._create(
+            ImgSize(192, 32),
+            Color(0, 0, 0)
+        )
+
+    def _write_blank_text(self):
+        imgdraw = ImageDraw.Draw(self._img)
+        imgdraw.text(ImgCoords(0, 0), text="IF YOU SEE THIS IMAGE")
+        imgdraw.text(ImgCoords(0, 16), text="SOMETHING WENT WRONG")
 
     @property
     def size(self) -> ImgSize:
-        if not self.image_created:
-            return ImgSize(0, 0)
         return ImgSize(*self._img.size)
 
     def create_image(self, regions: ConvertedRegions) -> None:
-        size = ImgSize(regions.width, regions.height)
+        size = regions.size
 
         if size.resolution >= self.limit:
             raise OutputImageTooLarge(size, self.limit)
@@ -46,44 +55,30 @@ class OutputImage:
         if self.suffix == OutputSuffix.WEBP and any(i >= WEBP_LIMIT for i in size):
             raise WebpResolutionLimit(size)
 
-        self._img = Image.new(
-            mode="RGB",
-            size=size,
-            color=MapBackground.COLOR
-        )
+        self._img = self._create(size, MapBackground.COLOR)
 
         if self.suffix != OutputSuffix.JPG:
             self._img.putalpha(MapBackground.ALPHA)
 
     def paste(self, region: RegionFile, regions: ConvertedRegions) -> None:
-        x = region.x - regions.min_x
-        y = region.z - regions.min_z
-
-        xy = ImgCoords(x * regions.scale, y * regions.scale)
+        xy = regions.region_to_xy(region)
+        scale = regions.scale
 
         with Image.open(region.path) as img:
             if self.debug:
-                render = DebugRender(img, scale=regions.scale)
-                render.draw(region, x, y, xy)
+                render = DebugRender(img, scale)
+                render.draw(region, xy, scale)
 
-            if self.image_created:
-                self._img.paste(img, xy)
+            self._img.paste(img, xy)
 
-    def crop(self, box: Box):
-        if self.image_created:
-            offset_box = Box(
-                left=box.left,
-                top=box.top,
-                right=self.size.w + box.right,
-                bottom=self.size.h + box.bottom
-            )
-
-            self._img = self._img.crop(offset_box)
+    def crop(self, box: Box) -> None:
+        self._img = self._img.crop(
+            box=box.offset(self.size)
+        )
 
     def save(self, path: Path) -> None:
-        if self.image_created:
-            self._img.save(
-                fp=path,
-                compress_level=self.compress,
-                quality=self.quality
-            )
+        self._img.save(
+            fp=path,
+            compress_level=self.compress,
+            quality=self.quality
+        )

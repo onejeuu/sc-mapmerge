@@ -5,7 +5,7 @@ from rich import print
 from scfile.utils import convert
 
 from scmapmerge.consts import Folder as F
-from scmapmerge.exceptions import PresetError
+from scmapmerge.exceptions import MissingRegions
 from scmapmerge.image.output import OutputImage
 from scmapmerge.utils.asker import Question, ask
 from scmapmerge.utils.presets import BasePreset
@@ -50,8 +50,9 @@ class MapMerger:
         regions.preset = self.preset
 
         if self.preset:
-            if not regions.contains_preset():
-                raise PresetError()
+            if not regions.contains_preset:
+                missing = regions.missing_preset_regions
+                raise MissingRegions(self.preset.name, missing)
 
             regions.filter_preset()
 

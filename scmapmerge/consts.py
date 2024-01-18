@@ -43,6 +43,6 @@ class Defaults:
 
 class Folder:
     WORKSPACE = Path("workspace")
-    ENCRYPTED = Path(WORKSPACE, "1-encrypted")
-    CONVERTED = Path(WORKSPACE, "2-converted")
-    OUTPUT = Path(WORKSPACE, "3-output")
+    ENCRYPTED = WORKSPACE / "1-encrypted"
+    CONVERTED = WORKSPACE / "2-converted"
+    OUTPUT = WORKSPACE / "3-output"

@@ -1,15 +1,14 @@
 from abc import ABC
 from typing import Optional
 
-from scmapmerge.datatype import Box, Region, Range
+from scmapmerge.datatype import Box, Region
 
 
-# TODO: improve: quite confusing
-def regions_bounds(x: Range, z: Range):
+def bounds(box: Box):
     return [
-        Region(region_x, region_z)
-        for region_x in range(x.start, x.stop + 1)
-        for region_z in range(z.start, z.stop + 1)
+        Region(x, z)
+        for x in range(box.left, box.right + 1)
+        for z in range(box.top, box.bottom + 1)
     ]
 
 
@@ -18,10 +17,10 @@ class BasePreset(ABC):
     """Lowercase unique name."""
 
     crop: Optional[Box] = None
-    """Optional relative coordinates of crop in pixels."""
+    """Optional relative coordinates of crop in pixels. Right and Bottom is offset."""
 
     regions: list[Region]
-    """List of regions required."""
+    """List of required regions."""
 
     def __str__(self):
         return self.name
@@ -33,31 +32,36 @@ class BasePreset(ABC):
 class ZonePreset(BasePreset):
     name = "zone"
 
-    crop = Box(0, 0, -1, -264)
-
-    regions = regions_bounds(
-        x = Range(-12, -6),
-        z = Range(-3, 9)
-    )
+    crop = Box(0, 0, 1, 264)
+    regions = bounds(Box(-12, -3, -6, 9))
 
 
 class NewNorthPreset(BasePreset):
     name = "newsever"
 
-    crop = Box(398, 229, 0, -352)
+    crop = Box(398, 229, 0, 352)
+    regions = bounds(Box(-23, -1, -14, 9))
 
-    regions = regions_bounds(
-        x = Range(-23, -14),
-        z = Range(-1, 9)
-    )
+
+class UnderArmsklad(BasePreset):
+    name = "underarmsklad"
+
+    crop = Box(1947, 1139, 97, 1143)
+    regions = bounds(Box(-2, -10, -1, -9))
+
+
+class UnderPd(BasePreset):
+    name = "underpd"
+
+    crop = Box(639, 1222, 50, 744)
+    regions = bounds(Box(-3, -10, -2, -9))
 
 
 class GawrGuraPreset(BasePreset):
     name = "gawrgura"
 
-    crop = Box(139, 404, -340, -66)
-
+    crop = Box(139, 404, 340, 66)
     regions = [Region(-5, 10)]
 
 
-PRESETS = [ZonePreset(), NewNorthPreset(), GawrGuraPreset()]
+PRESETS = [ZonePreset(), NewNorthPreset(), UnderArmsklad(), UnderPd(), GawrGuraPreset()]

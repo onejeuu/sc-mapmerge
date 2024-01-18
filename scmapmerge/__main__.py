@@ -27,6 +27,7 @@ class PresetType(click.ParamType):
                 return preset
         self.fail(f"Invalid preset: {value}. Available presets are: {join(PRESETS)}", param, ctx)
 
+
 @click.command()
 @click.option(
     "-F", "--filename", nargs=1, default=Defaults.FILENAME,
@@ -118,6 +119,7 @@ def main(
     finally:
         if not nopause:
             input("\nPress Enter to exit...")
+
 
 if __name__ == "__main__":
     main()

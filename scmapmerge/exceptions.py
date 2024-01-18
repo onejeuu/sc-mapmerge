@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scmapmerge.datatype import ImgSize
+from scmapmerge.datatype import ImgSize, Region
 from scmapmerge.consts import WEBP_LIMIT
 
 
@@ -29,14 +29,21 @@ class FolderIsEmpty(ScMapMergeException):
         return f"'{self.folder.as_posix()}' folder has no required files. {self.hint}."
 
 
-class ChunkSizeError(ScMapMergeException):
+class PresetError(ScMapMergeException):
     pass
 
 
-class PresetError(ScMapMergeException):
-    # TODO: improve: add explanation which regions missing
+class MissingRegions(PresetError):
+    def __init__(self, preset_name: str, missing: set[Region]):
+        self.preset_name = preset_name
+        self.missing = missing
+
     def __str__(self):
-        return "Not enough regions for selected preset"
+        return f"Missing {len(self.missing)} required regions for '{self.preset_name}' preset. "
+
+
+class ChunkSizeError(ScMapMergeException):
+    pass
 
 
 class ImageIsNotSquare(ChunkSizeError):
@@ -56,12 +63,16 @@ class ImagesSizesNotSame(ChunkSizeError):
 
     def __str__(self):
         return (
-            "Map images should be same size. "
+            "Map images should be same resolution. "
             f"Images have {len(self.sizes)} different sizes."
         )
 
 
-class OutputImageTooLarge(ScMapMergeException):
+class OutputImageError(ScMapMergeException):
+    pass
+
+
+class OutputImageTooLarge(OutputImageError):
     def __init__(self, size: ImgSize, limit: int):
         self.size = size
         self.limit = limit
@@ -73,7 +84,7 @@ class OutputImageTooLarge(ScMapMergeException):
         )
 
 
-class WebpResolutionLimit(ScMapMergeException):
+class WebpResolutionLimit(OutputImageError):
     def __init__(self, size: ImgSize):
         self.size = size
 

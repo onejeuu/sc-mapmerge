@@ -19,14 +19,14 @@ class FileName:
         self.count = self.DEFAULT_COUNT
 
     @property
-    def path(self):
+    def path(self) -> Path:
         return Path(self.base_path, f"{self.filename}.{self.suffix}")
 
-    def _parse_datetime(self):
+    def _parse_datetime(self) -> None:
         now = datetime.now()
         self.filename = now.strftime(self.filename)
 
-    def _check_uniqueness(self):
+    def _check_uniqueness(self) -> None:
         if not self.overwrite:
             while self.path.exists():
                 # removing previous count

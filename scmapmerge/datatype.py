@@ -42,14 +42,11 @@ class Box(NamedTuple):
     right: int
     bottom: int
 
+    def offset(self, size: ImgSize) -> "Box":
+        return Box(self.left, self.top, size.w - self.right, size.h - self.bottom)
+
 
 class Rectangle(NamedTuple):
     """Draw Rectangle. coordinates and size."""
     xy: ImgCoords
     size: ImgSize
-
-
-class Range(NamedTuple):
-    """Range. start and stop."""
-    start: int
-    stop: int

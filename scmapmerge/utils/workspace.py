@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from scfile.enums import FileSuffix
+
 from scmapmerge.consts import Folder as F
 from scmapmerge.exceptions import FolderIsEmpty
 from scmapmerge.utils.filename import FileName
@@ -41,7 +43,7 @@ class Workspace:
 
     def get_files(self, path: Path, *suffixes: str) -> list[Path]:
         """List of files in folder with given suffixes."""
-        return [file for suffix in suffixes for file in path.glob(f"*{suffix}")]
+        return [file for suffix in suffixes for file in path.glob(f"*.{suffix}")]
 
     def get_map_files(self, path: Path, *suffixes: str, hint: str) -> list[Path]:
         """List of files with given extensions and raises exception if folder is empty."""
@@ -52,11 +54,19 @@ class Workspace:
 
     def get_encrypted_files(self) -> list[Path]:
         """List of encrypted files in workspace."""
-        return self.get_map_files(F.ENCRYPTED, ".ol", ".mic", hint="Put encrypted map files there (.ol or .mic)")
+        return self.get_map_files(
+            F.ENCRYPTED,
+            FileSuffix.OL, FileSuffix.MIC,
+            hint="Put encrypted map files there (.ol or .mic)"
+        )
 
     def get_converted_files(self) -> list[Path]:
         """List of converted files in workspace."""
-        return self.get_map_files(F.CONVERTED, ".dds", ".png", hint="Convert map files first")
+        return self.get_map_files(
+            F.CONVERTED,
+            FileSuffix.DDS, FileSuffix.PNG,
+            hint="Convert map files first"
+        )
 
     @property
     def output_image_path(self) -> Path:

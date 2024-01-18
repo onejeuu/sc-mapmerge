@@ -1,11 +1,12 @@
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 from PIL import Image
+from scfile.enums import FileSuffix
 
 from scmapmerge import exceptions as exc
-from scmapmerge.datatype import ImgSize, Region
 from scmapmerge.consts import MapFile
+from scmapmerge.datatype import Box, ImgCoords, ImgSize, Region
 from scmapmerge.utils.presets import BasePreset
 
 
@@ -54,7 +55,14 @@ class RegionFile:
 class RegionsList:
     def __init__(self, regions: Optional[list[RegionFile]] = None):
         self.regions: list[RegionFile] = regions or []
-        self.preset: Optional[type[BasePreset]] = None
+
+    @property
+    def x(self) -> list[int]:
+        return list(r.x for r in self.regions)
+
+    @property
+    def z(self) -> list[int]:
+        return list(r.z for r in self.regions)
 
     @property
     def suffix(self) -> str:
@@ -64,19 +72,16 @@ class RegionsList:
         return ""
 
     @property
-    def new_suffix(self):
-        match self.suffix:
-            case ".mic":
-                return ".png"
+    def new_suffix(self) -> str:
+        # TODO: imrove: its still bad
 
-            case ".ol" | _:
-                return ".dds"
+        old_suffix = FileSuffix(self.suffix.lstrip("."))
+        new_suffix = FileSuffix.DDS
 
-    @property
-    def preset_regions(self) -> list[Region]:
-        if self.preset:
-            return self.preset.regions
-        return []
+        if old_suffix == FileSuffix.MIC:
+            new_suffix = FileSuffix.PNG
+
+        return f".{new_suffix}"
 
     @classmethod
     def from_pathes(cls, pathes: list[Path]):
@@ -95,6 +100,16 @@ class RegionsList:
 
 
 class EncryptedRegions(RegionsList):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.preset: Optional[type[BasePreset]] = None
+
+    @property
+    def preset_regions(self) -> list[Region]:
+        if self.preset:
+            return self.preset.regions
+        return []
+
     def contains_empty(self) -> bool:
         return any(
             r.filesize <= MapFile.MINIMUM_SIZE
@@ -106,50 +121,56 @@ class EncryptedRegions(RegionsList):
             lambda r: r.filesize > MapFile.MINIMUM_SIZE and r.region not in self.preset_regions
         )
 
-    def contains_preset(self) -> bool:
-        # TODO: improve: make it more readable
-        r1 = set(r.region for r in self.regions)
-        r2 = set(self.preset_regions)
-        return r2.issubset(r1)
-
     def filter_preset(self):
         self.filter(
             lambda r: r.region in self.preset_regions
         )
 
+    @property
+    def regions_set(self) -> set[Region]:
+        return set(r.region for r in self.regions)
+
+    @property
+    def contains_preset(self) -> bool:
+        return self.regions_set.issuperset(self.preset_regions)
+
+    @property
+    def missing_preset_regions(self) -> set:
+        return set(self.preset_regions) - self.regions_set
+
     def __str__(self):
         return str(self.regions)
+
 
 class ConvertedRegions(RegionsList):
     DEFAULT_SCALE = 512
 
-    @property
-    def min_x(self) -> int:
-        return min(region.x for region in self.regions)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scale: int = self.DEFAULT_SCALE
 
     @property
-    def min_z(self) -> int:
-        return min(region.z for region in self.regions)
+    def bounds(self) -> Box:
+        if not self.regions:
+            return Box(0, 0, 0, 0)
+
+        x = list(r.x for r in self.regions)
+        z = list(r.z for r in self.regions)
+
+        return Box(min(x), min(z), max(x), max(z))
 
     @property
-    def max_x(self) -> int:
-        return max(region.x for region in self.regions)
+    def size(self) -> ImgSize:
+        width = self.scale * (abs(self.bounds.left - self.bounds.right) + 1)
+        height = self.scale * (abs(self.bounds.top - self.bounds.bottom) + 1)
 
-    @property
-    def max_z(self) -> int:
-        return max(region.z for region in self.regions)
+        return ImgSize(width, height)
 
-    @property
-    def scale(self):
-        return self._scale or self.DEFAULT_SCALE
+    def region_to_xy(self, region: RegionFile) -> ImgCoords:
+        x = region.x - self.bounds.left
+        y = region.z - self.bounds.top
 
-    @property
-    def width(self) -> int:
-        return (abs(self.max_x - self.min_x) + 1) * self.scale
-
-    @property
-    def height(self) -> int:
-        return (abs(self.max_z - self.min_z) + 1) * self.scale
+        return ImgCoords(x * self.scale, y * self.scale)
 
     def find_scale(self) -> int:
         sizes: set[ImgSize] = set()
@@ -169,5 +190,5 @@ class ConvertedRegions(RegionsList):
             raise exc.ImagesSizesNotSame(sizes)
 
         size = sizes.pop()
-        self._scale = size.w
-        return self._scale
+        self.scale = size.w
+        return self.scale
