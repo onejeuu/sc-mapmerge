@@ -57,6 +57,19 @@ class UnderPd(BasePreset):
     regions = bounds(Box(-3, -10, -2, -9))
 
 
+class Sovhoz(BasePreset):
+    name = "sovhoz"
+
+    crop = Box(387, 42, 315, 383)
+    regions = bounds(Box(-4, 4, 0, 8))
+
+
+class SovhozFull(BasePreset):
+    name = "sovhozfull"
+
+    regions = bounds(Box(-4, 1, 3, 8))
+
+
 class Boral2023(BasePreset):
     name = "boral2023"
 
@@ -81,6 +94,8 @@ PRESETS = [
     NewNorthPreset(),
     UnderArmsklad(),
     UnderPd(),
+    Sovhoz(),
+    SovhozFull(),
     Boral2023(),
     Boral2021(),
     GawrGuraPreset()

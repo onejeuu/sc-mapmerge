@@ -1,8 +1,7 @@
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Literal
 
 from PIL import Image
-from scfile.enums import FileSuffix
 
 from scmapmerge import exceptions as exc
 from scmapmerge.consts import MapFile
@@ -72,16 +71,15 @@ class RegionsList:
         return ""
 
     @property
-    def new_suffix(self) -> str:
+    def new_suffix(self) -> Literal[".png", ".dds"]:
         # TODO: improve: its still bad
 
-        old_suffix = FileSuffix(self.suffix.lstrip("."))
-        new_suffix = FileSuffix.DDS
+        match self.suffix:
+            case ".mic":
+                return ".png"
 
-        if old_suffix == FileSuffix.MIC:
-            new_suffix = FileSuffix.PNG
-
-        return f".{new_suffix}"
+            case ".ol" | _:
+                return ".dds"
 
     @classmethod
     def from_pathes(cls, pathes: list[Path]):
@@ -118,7 +116,7 @@ class EncryptedRegions(RegionsList):
 
     def filter_empty(self):
         self.filter(
-            lambda r: r.filesize > MapFile.MINIMUM_SIZE and r.region not in self.preset_regions
+            lambda r: r.filesize > MapFile.MINIMUM_SIZE or r.region not in self.preset_regions
         )
 
     def filter_preset(self):
