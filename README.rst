@@ -12,11 +12,11 @@ You can use compiled executable from `Releases <https://github.com/onejeuu/sc-ma
 Merge Map
 ~~~~~~~~~~~
 
-1. Copy encrypted map files in ``workspace/1-encrypted`` folder.
+1. Copy encrypted map files to ``workspace/1-encrypted`` folder.
 
     Map files end with ``.ol`` or ``.mic`` extension and are located in ``pda`` game assets folder.
 
-    Folder ``workspace`` must be in same location as utility.
+    Folder ``workspace`` must be in same location as executable.
 
 2. Run executable.
 
@@ -83,4 +83,4 @@ And run script to compile:
 
     poetry run build
 
-Executable file will be created in ``/dist`` directory within your project folder.
+Executable file will be created in ``/dist`` directory in your project folder.

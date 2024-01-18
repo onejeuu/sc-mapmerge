@@ -39,7 +39,7 @@ class MapMerger:
             self.workspace.create_folders()
             print(
                 "\n[b yellow]Workspace has been successfully created.\n"
-                "Place map files (.ol or .mic) in[/]"
+                "Place map files (.ol or .mic) in[/] "
                 f"'{F.ENCRYPTED.as_posix()}' [b yellow]folder.[/]"
             )
             input("Press Enter to continue...")
@@ -47,30 +47,26 @@ class MapMerger:
     def convert_encrypted(self) -> None:
         encrypted = self.workspace.get_encrypted_files()
         regions = EncryptedRegions.from_pathes(encrypted)
+        regions.preset = self.preset
 
         if self.preset:
-            if not regions.contains_preset(self.preset.regions):
+            if not regions.contains_preset():
                 raise PresetError()
 
-            regions = regions.filter_preset(self.preset.regions)
+            regions.filter_preset()
 
         if regions.contains_empty() and ask(Question.SKIP_EMPTY_MAPS):
-            # TODO: fix: empty maps may filter preset required regions
-            regions = regions.filter_empty()
+            regions.filter_empty()
 
         self.convert_files(regions)
 
     def convert_files(self, regions: EncryptedRegions) -> None:
-        # TODO: improve: quite ugly
-        old_suffix = regions[0].path.suffix
-        new_suffix = ".dds" if old_suffix == ".ol" else ".png"
-
         print()
-        print("🔄", f"[b]Converting files to {new_suffix}...[/]")
+        print("🔄", f"[b]Converting regions to {regions.new_suffix}...[/]")
 
         with FilesProgress(total=len(regions)) as progress:
             for region in regions:
-                converted = Path(F.CONVERTED, region.path.with_suffix(new_suffix).name)
+                converted = Path(F.CONVERTED, region.path.with_suffix(regions.new_suffix).name)
                 convert.auto(region.path, converted)
                 progress.increment()
 

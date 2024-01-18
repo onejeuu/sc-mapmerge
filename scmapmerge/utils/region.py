@@ -1,11 +1,12 @@
 from pathlib import Path
-from typing import List
+from typing import Optional, Callable
 
 from PIL import Image
 
 from scmapmerge import exceptions as exc
 from scmapmerge.datatype import ImgSize, Region
 from scmapmerge.consts import MapFile
+from scmapmerge.utils.presets import BasePreset
 
 
 class RegionFile:
@@ -50,58 +51,93 @@ class RegionFile:
         return str(self)
 
 
-class RegionsList(List[RegionFile]):
+class RegionsList:
+    def __init__(self, regions: Optional[list[RegionFile]] = None):
+        self.regions: list[RegionFile] = regions or []
+        self.preset: Optional[type[BasePreset]] = None
+
+    @property
+    def suffix(self) -> str:
+        if len(self.regions) > 0:
+            region = self.regions[0]
+            return region.path.suffix
+        return ""
+
+    @property
+    def new_suffix(self):
+        match self.suffix:
+            case ".mic":
+                return ".png"
+
+            case ".ol" | _:
+                return ".dds"
+
+    @property
+    def preset_regions(self) -> list[Region]:
+        if self.preset:
+            return self.preset.regions
+        return []
+
     @classmethod
     def from_pathes(cls, pathes: list[Path]):
-        return cls([RegionFile(path) for path in pathes])
+        return cls(
+            [RegionFile(path) for path in pathes]
+        )
+
+    def filter(self, func: Callable):
+        self.regions = list(filter(func, self.regions))
+
+    def __len__(self):
+        return len(self.regions)
+
+    def __iter__(self):
+        return iter(self.regions)
 
 
 class EncryptedRegions(RegionsList):
-    # TODO: improve: this is awful
-
     def contains_empty(self) -> bool:
         return any(
-            region.filesize < MapFile.MINIMUM_SIZE
-            for region in self
+            r.filesize <= MapFile.MINIMUM_SIZE
+            for r in self.regions
         )
 
     def filter_empty(self):
-        return EncryptedRegions(
-            list(filter(lambda region: region.filesize > MapFile.MINIMUM_SIZE, self))
+        self.filter(
+            lambda r: r.filesize > MapFile.MINIMUM_SIZE and r.region not in self.preset_regions
         )
 
-    def contains_preset(self, preset_regions: list[Region]) -> bool:
+    def contains_preset(self) -> bool:
         # TODO: improve: make it more readable
-        r1 = set(region.region for region in self)
-        r2 = set(preset_regions)
+        r1 = set(r.region for r in self.regions)
+        r2 = set(self.preset_regions)
         return r2.issubset(r1)
 
-    def filter_preset(self, preset_regions: list[Region]):
-        return EncryptedRegions(
-            list(filter(lambda region: region.region in preset_regions, self))
+    def filter_preset(self):
+        self.filter(
+            lambda r: r.region in self.preset_regions
         )
 
+    def __str__(self):
+        return str(self.regions)
 
 class ConvertedRegions(RegionsList):
-    # TODO: improve: this too
-
     DEFAULT_SCALE = 512
 
     @property
     def min_x(self) -> int:
-        return min(region.x for region in self)
+        return min(region.x for region in self.regions)
 
     @property
     def min_z(self) -> int:
-        return min(region.z for region in self)
+        return min(region.z for region in self.regions)
 
     @property
     def max_x(self) -> int:
-        return max(region.x for region in self)
+        return max(region.x for region in self.regions)
 
     @property
     def max_z(self) -> int:
-        return max(region.z for region in self)
+        return max(region.z for region in self.regions)
 
     @property
     def scale(self):
@@ -119,9 +155,9 @@ class ConvertedRegions(RegionsList):
         sizes: set[ImgSize] = set()
 
         # Check that all images are square
-        for region in self:
+        for region in self.regions:
             with Image.open(region.path) as img:
-                size = ImgSize(img.width, img.height)
+                size = ImgSize(*img.size)
 
                 if size.w != size.h:
                     raise exc.ImageIsNotSquare(size)

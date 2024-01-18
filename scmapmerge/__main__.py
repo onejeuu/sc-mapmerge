@@ -14,14 +14,12 @@ from scmapmerge.utils.presets import PRESETS, BasePreset
 from scmapmerge.utils.workspace import Workspace
 
 
-SUFFIXES = [suffix.value for suffix in OutputSuffix]
 PRESET_NAMES = ", ".join(preset.name for preset in PRESETS)
 
 
 class PresetType(click.ParamType):
     name = "preset"
 
-    # TODO: improve: add type hints
     def convert(self, value, param, ctx):
         for preset in PRESETS:
             if value == preset.name:
@@ -83,7 +81,7 @@ def main(
     debug: bool
 ):
     workspace = Workspace(filename, suffix, overwrite)
-    output = OutputImage(suffix, compress, quality, limit, debug)
+    output = OutputImage(suffix, limit, compress, quality, debug)
 
     merger = MapMerger(workspace, output, preset)
 
@@ -93,10 +91,14 @@ def main(
     if preset:
         print(f"[b]Preset: '{preset.name}'[/]")
 
+    if debug:
+        print(f"[b]Debug: {debug}[/]")
+
     try:
-        if clear and ask(Question.CLEAR_WORKSPACE):
-            workspace.clear_all_folders()
-            print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
+        if clear:
+            if ask(Question.CLEAR_WORKSPACE):
+                workspace.clear_all_folders()
+                print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
             return
 
         merger.merge()

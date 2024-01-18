@@ -6,13 +6,18 @@ from scmapmerge.enums import OutputSuffix
 
 VERSION = "1.5-dev"
 
+# ? kibibyte / kilobyte
+KB = 2**10
+
+# ? webp resolution limit
+WEBP_LIMIT = 16 * KB
+
 
 class MapFile:
     # ? filename prefix
     PREFIX = "r."
 
-    # ? 7KB
-    MINIMUM_SIZE = 7168
+    MINIMUM_SIZE = 7 * KB
 
 
 class MapBackground:

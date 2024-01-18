@@ -49,4 +49,12 @@ class NewNorthPreset(BasePreset):
     )
 
 
-PRESETS = [ZonePreset, NewNorthPreset]
+class GawrGuraPreset(BasePreset):
+    name = "gawrgura"
+
+    crop = Box(139, 404, -340, -66)
+
+    regions = [Region(-5, 10)]
+
+
+PRESETS = [ZonePreset, NewNorthPreset, GawrGuraPreset]

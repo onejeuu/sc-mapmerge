@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from scmapmerge.datatype import ImgSize
+from scmapmerge.consts import WEBP_LIMIT
 
 
 class ScMapMergeException(Exception):
@@ -69,4 +70,15 @@ class OutputImageTooLarge(ScMapMergeException):
         return (
             "Output image is too large. "
             f"{self.size.w}px x {self.size.h}px > {self.limit}px."
+        )
+
+
+class WebpResolutionLimit(ScMapMergeException):
+    def __init__(self, size: ImgSize):
+        self.size = size
+
+    def __str__(self):
+        return (
+            f"Webp resolution limit ({WEBP_LIMIT}px) has been reached. "
+            f"{self.size.w}px x {self.size.h}px."
         )
