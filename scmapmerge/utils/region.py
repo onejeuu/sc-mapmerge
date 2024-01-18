@@ -73,7 +73,7 @@ class RegionsList:
 
     @property
     def new_suffix(self) -> str:
-        # TODO: imrove: its still bad
+        # TODO: improve: its still bad
 
         old_suffix = FileSuffix(self.suffix.lstrip("."))
         new_suffix = FileSuffix.DDS

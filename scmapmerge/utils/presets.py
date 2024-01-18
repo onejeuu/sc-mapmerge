@@ -57,6 +57,18 @@ class UnderPd(BasePreset):
     regions = bounds(Box(-3, -10, -2, -9))
 
 
+class Boral2023(BasePreset):
+    name = "boral2023"
+
+    regions = bounds(Box(5, -3, 10, 2))
+
+
+class Boral2021(BasePreset):
+    name = "boral2021"
+
+    regions = bounds(Box(13, -3, 18, 2))
+
+
 class GawrGuraPreset(BasePreset):
     name = "gawrgura"
 
@@ -64,4 +76,12 @@ class GawrGuraPreset(BasePreset):
     regions = [Region(-5, 10)]
 
 
-PRESETS = [ZonePreset(), NewNorthPreset(), UnderArmsklad(), UnderPd(), GawrGuraPreset()]
+PRESETS = [
+    ZonePreset(),
+    NewNorthPreset(),
+    UnderArmsklad(),
+    UnderPd(),
+    Boral2023(),
+    Boral2021(),
+    GawrGuraPreset()
+]
