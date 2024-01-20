@@ -19,7 +19,7 @@ class MapMerger:
         self,
         workspace: Workspace,
         output: OutputImage,
-        preset: Optional[type[BasePreset]]
+        preset: Optional[BasePreset]
     ):
         self.workspace = workspace
         self.output = output
@@ -51,12 +51,11 @@ class MapMerger:
 
         if self.preset:
             if not regions.contains_preset:
-                missing = regions.missing_preset_regions
-                raise MissingRegions(self.preset.name, missing)
+                raise MissingRegions(self.preset.name, regions.missing_preset_regions)
 
             regions.filter_preset()
 
-        if regions.contains_empty() and ask(Question.SKIP_EMPTY_MAPS):
+        if regions.contains_empty and ask(Question.SKIP_EMPTY_MAPS):
             regions.filter_empty()
 
         self.convert_files(regions)
@@ -67,8 +66,10 @@ class MapMerger:
 
         with FilesProgress(total=len(regions)) as progress:
             for region in regions:
-                converted = Path(F.CONVERTED, region.path.with_suffix(regions.new_suffix).name)
-                convert.auto(region.path, converted)
+                convert.auto(
+                    region.path,
+                    Path(F.CONVERTED, region.get_new_filename(regions.new_suffix))
+                )
                 progress.increment()
 
     def merge_to_full_map(self) -> None:
@@ -87,7 +88,11 @@ class MapMerger:
 
         with FilesProgress(total=len(regions)) as progress:
             for region in regions:
-                self.output.paste(region, regions)
+                self.output.paste(
+                    region,
+                    regions.region_to_xy(region),
+                    regions.scale
+                )
                 progress.increment()
 
     def crop_output_image(self) -> None:
@@ -98,7 +103,7 @@ class MapMerger:
         print()
         print("📥", "[b]Saving image file...[/]")
 
-        path = self.workspace.output_image_path
+        path = self.workspace.get_output_image_path()
         self.output.save(path)
 
         print("🦄", f"[b purple]Image saved as[/] '{path.as_posix()}'")

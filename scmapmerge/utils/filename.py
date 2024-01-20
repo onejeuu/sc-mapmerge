@@ -12,7 +12,7 @@ class FileName:
 
     def __init__(self, base_path: PathLike, template: str, suffix: str, overwrite: bool):
         self.base_path = base_path
-        self.filename = template
+        self.template = template
         self.suffix = suffix
         self.overwrite = overwrite
 
@@ -20,17 +20,17 @@ class FileName:
 
     @property
     def path(self) -> Path:
-        return Path(self.base_path, f"{self.filename_with_count}.{self.suffix}")
+        return Path(self.base_path, f"{self.filename}.{self.suffix}")
 
     @property
-    def filename_with_count(self):
+    def filename(self):
         if self.count <= self.START_COUNT:
-            return self.filename
-        return f"{self.filename} ({self.count})"
+            return self.template
+        return f"{self.template} ({self.count})"
 
     def _parse_datetime(self) -> None:
         now = datetime.now()
-        self.filename = now.strftime(self.filename)
+        self.template = now.strftime(self.template)
 
     def _check_uniqueness(self) -> None:
         if not self.overwrite:

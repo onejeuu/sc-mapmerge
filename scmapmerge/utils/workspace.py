@@ -32,9 +32,9 @@ class Workspace:
     def clear_folder(self, path: Path) -> None:
         """Removes all files from specified path."""
         if path.is_dir() and path.exists():
-            for file in path.glob("*"):
-                if file.is_file():
-                    file.unlink(missing_ok=True)
+            for entry in path.glob("*"):
+                if entry.is_file():
+                    entry.unlink(missing_ok=True)
 
     def clear_all_folders(self) -> None:
         """Clears all workspace folders."""
@@ -43,7 +43,10 @@ class Workspace:
 
     def get_files(self, path: Path, *suffixes: str) -> list[Path]:
         """List of files in folder with given suffixes."""
-        return [file for suffix in suffixes for file in path.glob(f"*.{suffix}")]
+        return [
+            file for suffix in suffixes
+            for file in path.glob(f"*.{suffix}")
+        ]
 
     def get_map_files(self, path: Path, *suffixes: str, hint: str) -> list[Path]:
         """List of files with given extensions and raises exception if folder is empty."""
@@ -68,7 +71,6 @@ class Workspace:
             hint="Convert map files first"
         )
 
-    @property
-    def output_image_path(self) -> Path:
+    def get_output_image_path(self) -> Path:
         """Output image path based on filename template."""
         return FileName(F.OUTPUT, self.filename, self.suffix, self.overwrite).as_path()

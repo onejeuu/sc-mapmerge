@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from scmapmerge.consts import WEBP_LIMIT, Defaults, MapBackground
+from scmapmerge.consts import WEBP_LIMIT, MapBackground
 from scmapmerge.datatype import Box, ImgCoords, ImgSize, Color
 from scmapmerge.enums import OutputSuffix
 from scmapmerge.exceptions import OutputImageTooLarge, WebpResolutionLimit
@@ -11,14 +11,7 @@ from scmapmerge.utils.region import ConvertedRegions, RegionFile
 
 
 class OutputImage:
-    def __init__(
-        self,
-        suffix: str = Defaults.SUFFIX,
-        limit: int  = Defaults.RESOLUTION_LIMIT,
-        compress: int = Defaults.COMPRESS_LEVEL,
-        quality: int = Defaults.QUALITY,
-        debug: bool = Defaults.DEBUG
-    ):
+    def __init__(self, suffix: str, limit: int, compress: int, quality: int, debug: bool):
         self.suffix = suffix
         self.limit = limit
         self.compress = compress
@@ -60,14 +53,11 @@ class OutputImage:
         if self.suffix != OutputSuffix.JPG:
             self._img.putalpha(MapBackground.ALPHA)
 
-    def paste(self, region: RegionFile, regions: ConvertedRegions) -> None:
-        xy = regions.region_to_xy(region)
-        scale = regions.scale
-
+    def paste(self, region: RegionFile, xy: ImgCoords, scale: int) -> None:
         with Image.open(region.path) as img:
             if self.debug:
                 render = DebugRender(img, scale)
-                render.draw(region, xy, scale)
+                render.draw(region, xy)
 
             self._img.paste(img, xy)
 

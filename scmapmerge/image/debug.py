@@ -40,19 +40,19 @@ class DebugRender:
             fill=Colors.TEXT
         )
 
-    def draw_rect(self, rect: Rectangle, outline: Color) -> None:
+    def draw_rect(self, rect: Rectangle) -> None:
         self._imgdraw.rectangle(
             xy=rect,
-            outline=outline,
+            outline=Colors.OUTLINE,
             width=4
         )
 
-    def draw(self, region: RegionFile, coords: ImgCoords, scale: int) -> None:
+    def draw(self, region: RegionFile, coords: ImgCoords) -> None:
         if Draw.TEXT:
             x, y = coords
             text = "\n".join([
                 str(region.path.stem),
-                f"{x // scale} {y // scale}",
+                f"{x // self.scale} {y // self.scale}",
                 f"{x}px {y}px",
             ])
             self.draw_text(text)
@@ -62,4 +62,4 @@ class DebugRender:
                 ImgCoords(1, 1),
                 ImgSize(self._img.width - 1, self._img.height - 1)
             )
-            self.draw_rect(outline_rect, Colors.OUTLINE)
+            self.draw_rect(outline_rect)

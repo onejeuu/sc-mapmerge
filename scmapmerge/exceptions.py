@@ -52,7 +52,7 @@ class ImageIsNotSquare(ChunkSizeError):
 
     def __str__(self):
         return (
-            "Map images should be square. "
+            "All map images should be square. "
             f"{self.size.w} x {self.size.h} px."
         )
 

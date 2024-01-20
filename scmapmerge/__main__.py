@@ -28,7 +28,7 @@ class PresetType(click.ParamType):
         self.fail(f"Invalid preset: {value}. Available presets: {join(PRESETS)}", param, ctx)
 
 
-@click.command()
+@click.command(no_args_is_help=True)
 @click.option(
     "-F", "--filename", nargs=1, default=Defaults.FILENAME,
     help="Output filename.", type=click.Path(exists=False, readable=True)
@@ -72,7 +72,7 @@ class PresetType(click.ParamType):
 def main(
     filename: str,
     suffix: str,
-    preset: Optional[type[BasePreset]],
+    preset: Optional[BasePreset],
     limit: int,
     clear: bool,
     nopause: bool,
@@ -96,13 +96,14 @@ def main(
         print(f"[b]Debug: {debug}[/]")
 
     try:
-        if clear:
-            if ask(Question.CLEAR_WORKSPACE):
-                workspace.clear_all_folders()
-                print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
-            return
+        match clear:
+            case True:
+                if ask(Question.CLEAR_WORKSPACE):
+                    workspace.clear_all_folders()
+                    print("\n[b yellow]Workspace has been successfully cleaned up.[/]")
 
-        merger.merge()
+            case _:
+                merger.merge()
 
     except ScMapMergeException as err:
         print(f"\n[b red]Error:[/] {err}")
