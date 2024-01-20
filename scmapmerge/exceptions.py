@@ -63,7 +63,7 @@ class ImagesSizesNotSame(ChunkSizeError):
 
     def __str__(self):
         return (
-            "Map images should be same resolution. "
+            "All map images should be same resolution. "
             f"Images have {len(self.sizes)} different sizes."
         )
 
