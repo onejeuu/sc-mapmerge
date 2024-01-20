@@ -14,9 +14,8 @@ WEBP_LIMIT = 16 * KB
 
 
 class MapFile:
-    # ? filename prefix
-    PREFIX = "r."
-
+    PREFIX = "r"
+    DELIMITER = "."
     MINIMUM_SIZE = 7 * KB
 
 

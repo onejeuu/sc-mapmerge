@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 
 from scmapmerge.datatype import Color, ImgCoords, ImgSize, Rectangle
-from scmapmerge.utils.region import RegionFile
+from scmapmerge.region.file import RegionFile
 
 
 class Draw:

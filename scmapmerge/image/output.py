@@ -2,12 +2,13 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
+from scmapmerge import exceptions as exc
 from scmapmerge.consts import WEBP_LIMIT, MapBackground
-from scmapmerge.datatype import Box, ImgCoords, ImgSize, Color
+from scmapmerge.datatype import Box, Color, ImgCoords, ImgSize
 from scmapmerge.enums import OutputSuffix
-from scmapmerge.exceptions import OutputImageTooLarge, WebpResolutionLimit
 from scmapmerge.image.debug import DebugRender
-from scmapmerge.utils.region import ConvertedRegions, RegionFile
+from scmapmerge.region.file import RegionFile
+from scmapmerge.region.listing.converted import ConvertedRegions
 
 
 class OutputImage:
@@ -43,10 +44,10 @@ class OutputImage:
         size = regions.size
 
         if size.resolution >= self.limit:
-            raise OutputImageTooLarge(size, self.limit)
+            raise exc.OutputImageTooLarge(size, self.limit)
 
         if self.suffix == OutputSuffix.WEBP and any(i >= WEBP_LIMIT for i in size):
-            raise WebpResolutionLimit(size)
+            raise exc.WebpResolutionLimit(size)
 
         self._img = self._create(size, MapBackground.COLOR)
 

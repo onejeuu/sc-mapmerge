@@ -7,10 +7,11 @@ from scfile.utils import convert
 from scmapmerge.consts import Folder as F
 from scmapmerge.exceptions import MissingRegions
 from scmapmerge.image.output import OutputImage
+from scmapmerge.region.listing.converted import ConvertedRegions
+from scmapmerge.region.listing.encrypted import EncryptedRegions
 from scmapmerge.utils.asker import Question, ask
 from scmapmerge.utils.presets import BasePreset
 from scmapmerge.utils.progress import FilesProgress
-from scmapmerge.utils.region import ConvertedRegions, EncryptedRegions
 from scmapmerge.utils.workspace import Workspace
 
 
@@ -51,7 +52,7 @@ class MapMerger:
 
         if self.preset:
             if not regions.contains_preset:
-                raise MissingRegions(self.preset.name, regions.missing_preset_regions)
+                raise MissingRegions(self.preset.name, regions.missing_preset)
 
             regions.filter_preset()
 
