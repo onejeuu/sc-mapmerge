@@ -31,18 +31,22 @@ class RegionFile:
 
     @property
     def filesize(self) -> int:
+        """Filesize in bytes."""
         return self.path.stat().st_size
 
     def get_new_filename(self, suffix: str) -> str:
+        """Filename with new suffix."""
         return self.path.with_suffix(suffix).name
 
     def _parse_filename(self) -> str:
+        """Replaces invalid delimiters and removes prefix."""
         filename = self.path.stem
         filename = filename.replace("_", MapFile.DELIMITER)
         filename = filename.lstrip(MapFile.PREFIX).lstrip(MapFile.DELIMITER)
         return filename
 
     def _is_valid_coords(self, *values: str) -> bool:
+        """Validates that all passed strings is digits."""
         return all(value.lstrip("-").isdigit() for value in values)
 
     def __str__(self):

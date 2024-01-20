@@ -27,6 +27,8 @@ class MapMerger:
         self.preset = preset
 
     def merge(self) -> None:
+        """Start entire merging process."""
+
         self.check_first_launch()
         self.workspace.create_folders()
 
@@ -36,6 +38,8 @@ class MapMerger:
         self.merge_to_full_map()
 
     def check_first_launch(self) -> None:
+        """Create workspace if it's first launch."""
+
         if not self.workspace.exists:
             self.workspace.create_folders()
             print(
@@ -46,6 +50,8 @@ class MapMerger:
             input("Press Enter to continue...")
 
     def convert_encrypted(self) -> None:
+        """Prepares encrypted regions list."""
+
         encrypted = self.workspace.get_encrypted_files()
         regions = EncryptedRegions.from_pathes(encrypted)
         regions.preset = self.preset
@@ -62,6 +68,8 @@ class MapMerger:
         self.convert_files(regions)
 
     def convert_files(self, regions: EncryptedRegions) -> None:
+        """Convert encrypted map files."""
+
         print()
         print("🔄", f"[b]Converting regions to {regions.new_suffix}...[/]")
 
@@ -74,6 +82,8 @@ class MapMerger:
                 progress.increment()
 
     def merge_to_full_map(self) -> None:
+        """Prepares converted regions list."""
+
         converted = self.workspace.get_converted_files()
         regions = ConvertedRegions.from_pathes(converted)
         regions.find_scale()
@@ -84,6 +94,8 @@ class MapMerger:
         self.save_output_image()
 
     def paste_regions(self, regions: ConvertedRegions) -> None:
+        """Paste regions images onto output image."""
+
         print()
         print("🔗", "[b]Merging to full map...[/]")
 
@@ -97,10 +109,14 @@ class MapMerger:
                 progress.increment()
 
     def crop_output_image(self) -> None:
+        """Crop output image if specified in preset."""
+
         if self.preset and self.preset.crop:
             self.output.crop(self.preset.crop)
 
     def save_output_image(self) -> None:
+        """Saving output image file."""
+
         print()
         print("📥", "[b]Saving image file...[/]")
 

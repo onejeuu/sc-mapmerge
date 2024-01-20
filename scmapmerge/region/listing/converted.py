@@ -34,12 +34,16 @@ class ConvertedRegions(RegionsList):
         return ImgSize(self.width * self.scale, self.height * self.scale)
 
     def region_to_xy(self, region: RegionFile) -> ImgCoords:
+        """Convert region coordinates to image coordinates."""
+
         x = region.x - self.bounds.left
         y = region.z - self.bounds.top
 
         return ImgCoords(x * self.scale, y * self.scale)
 
     def find_scale(self) -> int:
+        """Find chunk size scale for images based on their sizes."""
+
         sizes: set[ImgSize] = set()
 
         # Check that all images are square

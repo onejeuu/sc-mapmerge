@@ -10,14 +10,17 @@ class RegionsList:
 
     @property
     def x(self) -> list[int]:
+        """List of x values."""
         return list(r.x for r in self.regions)
 
     @property
     def z(self) -> list[int]:
+        """List of z values."""
         return list(r.z for r in self.regions)
 
     @property
     def suffix(self) -> str:
+        """Suffix of first map file. Or empty string."""
         if len(self.regions) > 0:
             region = self.regions[0]
             return region.path.suffix
@@ -25,6 +28,7 @@ class RegionsList:
 
     @property
     def new_suffix(self) -> Literal[".png", ".dds"]:
+        """New suffix based on old one."""
         match self.suffix:
             case ".mic":
                 return ".png"
@@ -34,11 +38,13 @@ class RegionsList:
 
     @classmethod
     def from_pathes(cls, pathes: list[Path]):
+        """Create instance from list of Path."""
         return cls(
             [RegionFile(path) for path in pathes]
         )
 
     def filter(self, func: Callable[[RegionFile], bool]):
+        """Filter regions items using specified function."""
         self.regions = list(filter(func, self.regions))
 
     def __len__(self):

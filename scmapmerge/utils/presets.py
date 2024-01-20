@@ -80,6 +80,7 @@ class GawrGura(BasePreset):
     regions = [Region(-5, 10)]
 
 
+# pep8 crime, not best implementation, but still
 PRESETS = [
     Zone(),
     NewSever(),

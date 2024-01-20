@@ -23,15 +23,18 @@ class OutputImage:
         self._write_blank_text()
 
     def _create(self, size: ImgSize, color: Color):
+        """Create new RGB image."""
         return Image.new(mode="RGB", size=size, color=color)
 
     def _create_blank_image(self) -> None:
+        """Create blank image."""
         self._img = self._create(
             ImgSize(192, 32),
             Color(0, 0, 0)
         )
 
     def _write_blank_text(self):
+        """Write predefined text on blank image."""
         imgdraw = ImageDraw.Draw(self._img)
         imgdraw.text(ImgCoords(0, 0), text="IF YOU SEE THIS IMAGE")
         imgdraw.text(ImgCoords(0, 16), text="SOMETHING WENT WRONG")
@@ -41,6 +44,8 @@ class OutputImage:
         return ImgSize(*self._img.size)
 
     def create_image(self, regions: ConvertedRegions) -> None:
+        """Create new image based on regions size."""
+
         size = regions.size
 
         if size.resolution >= self.limit:
@@ -55,6 +60,8 @@ class OutputImage:
             self._img.putalpha(MapBackground.ALPHA)
 
     def paste(self, region: RegionFile, xy: ImgCoords, scale: int) -> None:
+        """Paste region chunk image onto output image."""
+
         with Image.open(region.path) as img:
             if self.debug:
                 render = DebugRender(img, scale)
@@ -63,12 +70,16 @@ class OutputImage:
             self._img.paste(img, xy)
 
     def crop(self, box: Box) -> None:
+        """Crop image based on provided box."""
+
         box = box.offset(self.size)
 
         if box.valid:
             self._img = self._img.crop(box)
 
     def save(self, path: Path) -> None:
+        """Save output image to provided path."""
+
         self._img.save(
             fp=path,
             compress_level=self.compress,

@@ -6,20 +6,18 @@ class Region(NamedTuple):
     x: int
     z: int
 
-
 class ImgCoords(NamedTuple):
     """Image coordinates. x and y."""
     x: int
     y: int
 
-
 class Prompt(NamedTuple):
+    """Ask prompt. message and default answer."""
     message: str
     default: bool
 
-
 class ImgSize(NamedTuple):
-    """Image size in pixels. width and height"""
+    """Image size in pixels. width and height."""
     w: int
     h: int
 
@@ -27,13 +25,11 @@ class ImgSize(NamedTuple):
     def resolution(self):
         return self.w * self.h
 
-
 class Color(NamedTuple):
     """RGB colors. red, green and blue."""
     r: int
     g: int
     b: int
-
 
 class Box(NamedTuple):
     """Box. left, top, right, bottom."""
@@ -48,7 +44,6 @@ class Box(NamedTuple):
     @property
     def valid(self) -> bool:
         return self.right > self.left and self.bottom > self.top
-
 
 class Rectangle(NamedTuple):
     """Draw Rectangle. coordinates and size."""

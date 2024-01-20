@@ -49,7 +49,7 @@ class Workspace:
         ]
 
     def get_map_files(self, path: Path, *suffixes: str, hint: str) -> list[Path]:
-        """List of files with given extensions and raises exception if folder is empty."""
+        """List of files with given suffixes and raises exception if folder is empty."""
         files = self.get_files(path, *suffixes)
         if not files:
             raise FolderIsEmpty(path, hint)

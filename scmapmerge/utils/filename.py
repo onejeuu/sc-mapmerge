@@ -20,24 +20,29 @@ class FileName:
 
     @property
     def path(self) -> Path:
+        """Complete file path with count and suffix."""
         return Path(self.base_path, f"{self.filename}.{self.suffix}")
 
     @property
     def filename(self):
+        """Formatted filename with count."""
         if self.count <= self.START_COUNT:
             return self.template
         return f"{self.template} ({self.count})"
 
     def _parse_datetime(self) -> None:
+        """Parses current datetime and updates template."""
         now = datetime.now()
         self.template = now.strftime(self.template)
 
     def _check_uniqueness(self) -> None:
+        """Validates that filename is unique. Increments count."""
         if not self.overwrite:
             while self.path.exists():
                 self.count += 1
 
     def as_path(self) -> Path:
+        """Generates complete path. Parsing datetime and check uniqueness."""
         self._parse_datetime()
         self._check_uniqueness()
         return self.path
