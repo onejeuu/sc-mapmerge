@@ -45,7 +45,7 @@ Options
 
 - ``--help`` Show help message.
 
-- ``-F`` ``--filename`` - Output filename. Accepts `datetime formatting <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_.. Defaults to ``"Map %Y.%m.%d"``
+- ``-F`` ``--filename`` - Output filename. Accepts `datetime formatting <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_. Defaults to ``"Map %Y.%m.%d"``.
 
 - ``-S`` ``--suffix`` - Output format. (``png``, ``jpg``, ``webp``, ``tiff``, ``bmp``, ``dds``). Defaults to jpg.
 
