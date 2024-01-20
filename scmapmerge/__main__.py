@@ -28,7 +28,7 @@ class PresetType(click.ParamType):
         self.fail(f"Invalid preset: {value}. Available presets: {join(PRESETS)}", param, ctx)
 
 
-@click.command(no_args_is_help=True)
+@click.command()
 @click.option(
     "-F", "--filename", nargs=1, default=Defaults.FILENAME,
     help="Output filename.", type=click.Path(exists=False, readable=True)
