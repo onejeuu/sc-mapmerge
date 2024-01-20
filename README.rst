@@ -45,17 +45,17 @@ Options
 
 - ``--help`` Show help message.
 
-- ``-F`` ``--filename`` - Output filename. Defaults to ``Map %Y.%m.%d``. Accepts `datetime formatting <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_.
+- ``-F`` ``--filename`` - Output filename. Accepts `datetime formatting <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_.. Defaults to ``"Map %Y.%m.%d"``
 
-- ``-S`` ``--suffix`` - Output format. (``png``, ``jpg``, ``webp``, ``tiff``, ``bmp``, ``dds``). Defaults to ``jpg``.
+- ``-S`` ``--suffix`` - Output format. (``png``, ``jpg``, ``webp``, ``tiff``, ``bmp``, ``dds``). Defaults to jpg.
 
 - ``-P`` ``--preset`` - Output preset. (``zone``, ``newsever``, ``underarmsklad``, ``underpd``, ...).
 
 - ``-L`` ``--limit`` - Output resolution limit, to prevent memory overflow. Defaults to 1.000.000.000.
 
-- ``--compress`` - Output compression level (``png``). From 0 to 9. Defaults to 6.
+- ``--compress`` - Output compression level (png). From 0 to 9. Defaults to 6.
 
-- ``--quality`` - Output quality % (``jpg``, ``webp``). From 0 to 100. Defaults to 90.
+- ``--quality`` - Output quality % (jpg, webp). From 0 to 100. Defaults to 90.
 
 
 Flags
