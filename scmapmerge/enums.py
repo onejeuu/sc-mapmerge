@@ -1,7 +1,7 @@
 from enum import StrEnum, auto
 
 
-class OutputSuffix(StrEnum):
+class OutputFormat(StrEnum):
     PNG = auto()
     JPG = auto()
     WEBP = auto()

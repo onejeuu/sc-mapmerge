@@ -1,16 +1,19 @@
 from pathlib import Path
 
 from scmapmerge.datatype import Color
-from scmapmerge.enums import OutputSuffix
+from scmapmerge.enums import OutputFormat
 
 
-VERSION = "1.5"
+VERSION = "2.0"
 
 # ? kibibyte / kilobyte
 KB = 2**10
 
 # ? webp resolution limit
 WEBP_LIMIT = 16 * KB
+
+# ? formats that dont support transparency
+NONTRANSPARENT_FORMATS = {OutputFormat.JPG, OutputFormat.BMP, OutputFormat.DDS}
 
 class MapFile:
     PREFIX = "r"
@@ -23,14 +26,12 @@ class MapBackground:
 
 class Defaults:
     FILENAME = "Map %Y.%m.%d"
-    SUFFIX = OutputSuffix.JPG
-    # ? to prevent memory overflow
-    RESOLUTION_LIMIT = 1_000_000_000
-    # ? compression level (png)
-    COMPRESS_LEVEL = 6
-    # ? quality (jpg, webp)
-    QUALITY = 90
+    SUFFIX = OutputFormat.JPG
+    RESOLUTION_LIMIT = 1_000_000_000 # prevent memory overflow
+    COMPRESS_LEVEL = 6 # image compression (png)
+    QUALITY = 90 # image quality (jpg, webp)
     DEBUG = False
+    OVERWRITE = False
 
 class Folder:
     WORKSPACE = Path("workspace")

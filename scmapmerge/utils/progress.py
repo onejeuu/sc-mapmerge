@@ -1,5 +1,5 @@
 from rich import progress
-from typing import Optional
+from typing import Optional, Any
 
 
 class Description:
@@ -38,7 +38,7 @@ class FilesProgress:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[Any]):
         if exc_type is None:
             self.done()
         else:

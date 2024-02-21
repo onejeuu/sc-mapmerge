@@ -1,18 +1,14 @@
 from PIL import Image
 
-from scmapmerge import exceptions as exc
-from scmapmerge.datatype import Box, ImgCoords, ImgSize
-from scmapmerge.region.file import RegionFile
+from scmapmerge.datatype import Box, ImageCoords, ImageSize
+from scmapmerge.region import BaseRegionFile
+from scmapmerge.region.exceptions import ChunkNotSquare, ChunkSizesNotSame
 
-from .base import RegionsList
+from .listing import RegionsListing
 
 
-class ConvertedRegions(RegionsList):
-    DEFAULT_SCALE = 512
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.scale: int = self.DEFAULT_SCALE
+class ConvertedRegions(RegionsListing):
+    scale: int = 512
 
     @property
     def bounds(self) -> Box:
@@ -30,35 +26,31 @@ class ConvertedRegions(RegionsList):
         return abs(self.bounds.top - self.bounds.bottom) + 1
 
     @property
-    def size(self) -> ImgSize:
-        return ImgSize(self.width * self.scale, self.height * self.scale)
+    def size(self) -> ImageSize:
+        return ImageSize(self.width * self.scale, self.height * self.scale)
 
-    def region_to_xy(self, region: RegionFile) -> ImgCoords:
-        """Convert region coordinates to image coordinates."""
-
+    def region_to_xy(self, region: BaseRegionFile) -> ImageCoords:
         x = region.x - self.bounds.left
         y = region.z - self.bounds.top
 
-        return ImgCoords(x * self.scale, y * self.scale)
+        return ImageCoords(x * self.scale, y * self.scale)
 
     def find_scale(self) -> int:
-        """Find chunk size scale for images based on their sizes."""
-
-        sizes: set[ImgSize] = set()
+        sizes: set[ImageSize] = set()
 
         # Check that all images are square
         for region in self.regions:
             with Image.open(region.path) as img:
-                size = ImgSize(*img.size)
+                size = ImageSize(*img.size)
 
                 if size.w != size.h:
-                    raise exc.ImageIsNotSquare(size)
+                    raise ChunkNotSquare(size)
 
                 sizes.add(size)
 
         # Check that all images have the same resolution
         if len(sizes) != 1:
-            raise exc.ImagesSizesNotSame(sizes)
+            raise ChunkSizesNotSame(sizes)
 
         size = sizes.pop()
 

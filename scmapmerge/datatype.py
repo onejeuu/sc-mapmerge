@@ -1,22 +1,22 @@
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 
 class Region(NamedTuple):
-    """Minecraft region. x and z."""
+    """Region horizontal plane. x and z."""
     x: int
     z: int
-
-class ImgCoords(NamedTuple):
-    """Image coordinates. x and y."""
-    x: int
-    y: int
 
 class Prompt(NamedTuple):
     """Ask prompt. message and default answer."""
     message: str
     default: bool
 
-class ImgSize(NamedTuple):
+class ImageCoords(NamedTuple):
+    """Image coordinates. x and y."""
+    x: int
+    y: int
+
+class ImageSize(NamedTuple):
     """Image size in pixels. width and height."""
     w: int
     h: int
@@ -26,7 +26,7 @@ class ImgSize(NamedTuple):
         return self.w * self.h
 
 class Color(NamedTuple):
-    """RGB colors. red, green and blue."""
+    """RGB color. red, green and blue."""
     r: int
     g: int
     b: int
@@ -38,7 +38,7 @@ class Box(NamedTuple):
     right: int
     bottom: int
 
-    def offset(self, size: ImgSize) -> "Box":
+    def offset(self, size: ImageSize) -> "Box":
         return Box(self.left, self.top, size.w - self.right, size.h - self.bottom)
 
     @property
@@ -47,5 +47,14 @@ class Box(NamedTuple):
 
 class Rectangle(NamedTuple):
     """Draw Rectangle. coordinates and size."""
-    xy: ImgCoords
-    size: ImgSize
+    xy: ImageCoords
+    size: ImageSize
+
+class Preset(NamedTuple):
+    """Preset configuration. name, required regions, and optional image cropping."""
+    name: str
+    regions: list[Region]
+    crop: Optional[Box] = None
+
+    def __str__(self):
+        return self.name

@@ -1,36 +1,33 @@
 from pathlib import Path
 from typing import Optional
 
+import click
 from rich import print
 from scfile.utils import convert
 
+from scmapmerge.consts import NONTRANSPARENT_FORMATS
 from scmapmerge.consts import Folder as F
-from scmapmerge.exceptions import MissingRegions
-from scmapmerge.image.output import OutputImage
+from scmapmerge.datatype import Preset
+from scmapmerge.image import BaseOutputImage
+from scmapmerge.merger.exceptions import MissingRegions
 from scmapmerge.region.listing.converted import ConvertedRegions
 from scmapmerge.region.listing.encrypted import EncryptedRegions
 from scmapmerge.utils.asker import Question, ask
-from scmapmerge.utils.presets import BasePreset
 from scmapmerge.utils.progress import FilesProgress
-from scmapmerge.utils.workspace import Workspace
+from scmapmerge.workspace.base import BaseWorkspace
+
+from .base import BaseMapMerger
 
 
-class MapMerger:
-    def __init__(
-        self,
-        workspace: Workspace,
-        output: OutputImage,
-        preset: Optional[BasePreset]
-    ):
+class MapMerger(BaseMapMerger):
+    def __init__(self, workspace: BaseWorkspace, output: BaseOutputImage, preset: Optional[Preset]):
         self.workspace = workspace
         self.output = output
         self.preset = preset
 
     def merge(self) -> None:
-        """Start entire merging process."""
-
         self.check_first_launch()
-        self.workspace.create_folders()
+        self.workspace.create()
 
         self.workspace.clear_folder(F.CONVERTED)
         self.convert_encrypted()
@@ -41,31 +38,43 @@ class MapMerger:
         """Create workspace if it's first launch."""
 
         if not self.workspace.exists:
-            self.workspace.create_folders()
+            self.workspace.create()
             print(
                 "\n[b yellow]Workspace has been successfully created.\n"
-                "Place map files (.ol or .mic) in[/] "
+                "Copy encrypted map files (.ol or .mic) to[/] "
                 f"'{F.ENCRYPTED.as_posix()}' [b yellow]folder.[/]"
             )
-            input("Press Enter to continue...")
+            click.pause("Press Enter to continue...")
 
     def convert_encrypted(self) -> None:
         """Prepares encrypted regions list."""
 
         encrypted = self.workspace.get_encrypted_files()
-        regions = EncryptedRegions.from_pathes(encrypted)
+        regions = EncryptedRegions.from_paths(encrypted)
         regions.preset = self.preset
 
+        self.filter_preset(regions)
+        self.filter_empty(regions)
+        self.warn_about_alpha(regions)
+        self.convert_files(regions)
+
+    def filter_preset(self, regions: EncryptedRegions):
         if self.preset:
             if not regions.contains_preset:
                 raise MissingRegions(self.preset.name, regions.missing_preset)
 
             regions.filter_preset()
 
+    def filter_empty(self, regions: EncryptedRegions):
         if regions.contains_empty and ask(Question.SKIP_EMPTY_MAPS):
             regions.filter_empty()
 
-        self.convert_files(regions)
+    def warn_about_alpha(self, regions: EncryptedRegions):
+        """Warns if output format does not support alpha and regions is overlay"""
+
+        if regions.possible_overlay and self.output.format in NONTRANSPARENT_FORMATS:
+            print()
+            print(f"[b][yellow]Output is possibly overlay, but selected suffix ({self.output.format}) does not support transparency.[/]")
 
     def convert_files(self, regions: EncryptedRegions) -> None:
         """Convert encrypted map files."""
@@ -85,13 +94,15 @@ class MapMerger:
         """Prepares converted regions list."""
 
         converted = self.workspace.get_converted_files()
-        regions = ConvertedRegions.from_pathes(converted)
+        regions = ConvertedRegions.from_paths(converted)
         regions.find_scale()
 
-        self.output.create_image(regions)
+        self.output.regions = regions
+        self.output.create()
+
         self.paste_regions(regions)
-        self.crop_output_image()
-        self.save_output_image()
+        self.crop_output()
+        self.save_output()
 
     def paste_regions(self, regions: ConvertedRegions) -> None:
         """Paste regions images onto output image."""
@@ -101,22 +112,14 @@ class MapMerger:
 
         with FilesProgress(total=len(regions)) as progress:
             for region in regions:
-                self.output.paste(
-                    region,
-                    regions.region_to_xy(region),
-                    regions.scale
-                )
+                self.output.paste(region)
                 progress.increment()
 
-    def crop_output_image(self) -> None:
-        """Crop output image if specified in preset."""
-
+    def crop_output(self) -> None:
         if self.preset and self.preset.crop:
             self.output.crop(self.preset.crop)
 
-    def save_output_image(self) -> None:
-        """Saving output image file."""
-
+    def save_output(self) -> None:
         print()
         print("📥", "[b]Saving image file...[/]")
 

@@ -1,2 +1,1 @@
-from .debug import DebugRender
-from .output import OutputImage
+from .output import OutputImage, BaseOutputImage
