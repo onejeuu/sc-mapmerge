@@ -11,11 +11,11 @@ You can use compiled executable from [Releases](https://github.com/onejeuu/sc-ma
 
 1. Copy encrypted map files to `workspace/1-encrypted` folder.
 
-    > [!IMPORTANT]
-    > Folder `workspace` must be in same location as `scmapmerge.exe`.
+> [!IMPORTANT]
+> Folder `workspace` must be in same location as `scmapmerge.exe`.
 
-    > [!NOTE]
-    > Map files end with `.ol` or `.mic` extension and located in `pda` game assets folder.
+> [!NOTE]
+> Map files end with `.ol` or `.mic` extension and located in `pda` game assets folder.
 
 2. Run `scmapmerge.exe`.
 
@@ -31,8 +31,8 @@ or
 
 - Run `scmapmerge.exe` with `-D` or `--clear` flag.
 
-    > [!WARNING]
-    > This will delete **all files** in `workspace` folder, including `workspace/3-output`.
+> [!WARNING]
+> This will delete **all files** in `workspace` folder, including `workspace/3-output`.
 
 ### Options
 
@@ -61,7 +61,7 @@ or
 ### Example
 
 ```bash
-scmapmerge -F "Map" -S jpg --quality 100 -N --overwrite
+scmapmerge -F "Map" -S jpg -P zone --quality 100 -N --overwrite
 ```
 
 
