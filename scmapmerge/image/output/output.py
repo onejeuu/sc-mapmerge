@@ -38,6 +38,10 @@ class OutputImage(BaseOutputImage):
     def format(self):
         return self.suffix
 
+    @property
+    def limit_enabled(self):
+        return self.limit > 0
+
     def _create(self, size: ImageSize, color: Color):
         return Image.new(mode="RGB", size=size, color=color)
 
@@ -59,7 +63,7 @@ class OutputImage(BaseOutputImage):
         self._add_alpha()
 
     def _validate_resolution(self, size: ImageSize):
-        if size.resolution >= self.limit:
+        if self.limit_enabled and size.resolution >= self.limit:
             raise OutputImageTooLarge(size, self.limit)
 
     def _validate_webp(self, size: ImageSize):

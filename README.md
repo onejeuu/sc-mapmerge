@@ -9,42 +9,46 @@ You can use compiled executable from [Releases](https://github.com/onejeuu/sc-ma
 
 ### Merge Map
 
-1. Copy encrypted map files to `workspace/1-encrypted` folder.
+1. Copy encrypted map files.
 
-> [!IMPORTANT]
-> Folder `workspace` must be in same location as `scmapmerge.exe`.
+    Copy files with `.ol` or `.mic` extension to `workspace/1-encrypted` folder.
 
-> [!NOTE]
-> Map files end with `.ol` or `.mic` extension and located in `pda` game assets folder.
+    Folder `workspace` must be in same location as `scmapmerge.exe`.
+
+    Map files located in `pda` folder of game assets.
 
 2. Run `scmapmerge.exe`.
 
-### Create Workspace
+> [!TIP]
+> You can use `--fromassets` flag to select map without manual copying.
+
+### Workspace
+
+#### Create
 
 - Run `scmapmerge.exe`. Workspace folders will be created automatically.
 
-### Clear Workspace
+#### Clear
 
 - Delete `workspace` folder.
 
-or
+    or
 
 - Run `scmapmerge.exe` with `-D` or `--clear` flag.
 
-> [!WARNING]
-> This will delete **all files** in `workspace` folder, including `workspace/3-output`.
+    This will delete **all files** in `workspace` folder, including `workspace/3-output`.
 
 ### Options
 
 - `--help` Show help message.
 
-- `-F` `--filename` - Output filename. Accepts [datetime formatting](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes). Defaults to `"Map %Y.%m.%d"`.
+- `-F`, `--filename` - Output filename. Accepts [datetime formatting](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes). Defaults to `"Map %Y.%m.%d"`.
 
-- `-S` `--suffix` - Output format. (`png`, `jpg`, `webp`, `tiff`, `bmp`, `dds`). Defaults to jpg.
+- `-S`, `--suffix` - Output format. (`png`, `jpg`, `webp`, `tiff`, `bmp`, `dds`). Defaults to jpg.
 
-- `-P` `--preset` - Output preset. (`zone`, `newsever`, `underpd`, ...). Defaults to None.
+- `-P`, `--preset` - Output preset. (`zone`, `newsever`, `underpd`, ...). Defaults to None.
 
-- `-L` `--limit` - Output resolution limit, to prevent memory overflow. Defaults to 1.000.000.000.
+- `-L`, `--limit` - Output resolution limit, to prevent memory overflow. Specify 0 to ignore.
 
 - `--compress` - Output compression level (png). From 0 to 9. Defaults to 6.
 
@@ -52,11 +56,11 @@ or
 
 ### Flags
 
-- `-D` `--clear` - Clear workspace folder. Deletes all files.
+- `-D`, `--clear` - Clear workspace folder. Deletes all files.
 
-- `-A` `--fromassets` - Select map from game assets. No need to manually copy files.
+- `-A`, `--fromassets` - Select map from game assets. No need to manually copy files.
 
-- `-N` `--nopause` - Removes pause before program exit.
+- `-N`, `--nopause` - Removes pause before program exit.
 
 - `--overwrite` - Overwrites an existing output image.
 
