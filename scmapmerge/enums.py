@@ -2,8 +2,10 @@ from enum import StrEnum, auto
 
 
 class OutputFormat(StrEnum):
-    PNG = auto()
+    """Output image suffix."""
+
     JPG = auto()
+    PNG = auto()
     WEBP = auto()
     TIFF = auto()
     BMP = auto()

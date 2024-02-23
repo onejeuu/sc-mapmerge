@@ -54,6 +54,8 @@ or
 
 - `-D` `--clear` - Clear workspace folder. Deletes all files.
 
+- `-A` `--fromassets` - Select map from game assets. No need to manually copy files.
+
 - `-N` `--nopause` - Removes pause before program exit.
 
 - `--overwrite` - Overwrites an existing output image.
@@ -61,7 +63,7 @@ or
 ### Example
 
 ```bash
-scmapmerge -F "Map" -S jpg -P zone --quality 100 -N --overwrite
+scmapmerge -N -F "Map" -S jpg -P zone --quality 100 --overwrite
 ```
 
 

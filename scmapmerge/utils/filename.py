@@ -6,6 +6,7 @@ from typing import TypeAlias
 
 PathLike: TypeAlias = str | os.PathLike[str] | Path
 
+
 class FileName:
     START_COUNT = 1
 

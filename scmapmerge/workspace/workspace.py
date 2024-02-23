@@ -1,9 +1,10 @@
 from pathlib import Path
+import shutil
 
 from scfile.enums import FileSuffix
 
 from scmapmerge.consts import Defaults
-from scmapmerge.consts import Folder as F
+from scmapmerge.consts import WorkspaceFolder as F
 from scmapmerge.utils.filename import FileName
 from scmapmerge.workspace.exceptions import FolderIsEmpty
 
@@ -46,25 +47,37 @@ class Workspace(BaseWorkspace):
             if entry.is_file():
                 entry.unlink(missing_ok=True)
 
+    def copy_files_to_encrypted(self, folder: Path) -> None:
+        files = self._get_files(folder, FileSuffix.OL, FileSuffix.MIC)
+
+        if not files:
+            raise FolderIsEmpty(folder, "Game assets is invalid.")
+
+        self.create()
+
+        for file in files:
+            shutil.copy(file, F.ENCRYPTED / file.name)
+
     def get_encrypted_files(self) -> list[Path]:
-        return self._get_map_files(
-            F.ENCRYPTED, FileSuffix.OL, FileSuffix.MIC,
-            hint="Copy encrypted map files there."
-        )
+        folder = F.ENCRYPTED
+        files = self._get_files(folder, FileSuffix.OL, FileSuffix.MIC)
+
+        if not files:
+            raise FolderIsEmpty(folder, "Copy encrypted map files there.")
+
+        return files
 
     def get_converted_files(self) -> list[Path]:
-        return self._get_map_files(
-            F.CONVERTED, FileSuffix.DDS, FileSuffix.PNG,
-            hint="Convert map files first."
-        )
+        folder = F.CONVERTED
+        files = self._get_files(folder, FileSuffix.DDS, FileSuffix.PNG)
+
+        if not files:
+            raise FolderIsEmpty(folder, "Convert map files first.")
+
+        return files
 
     def get_output_image_path(self) -> Path:
         return FileName(F.OUTPUT, self.filename, self.suffix, self.overwrite).as_path()
 
-    def _get_files(self, path: Path, *suffixes: str) -> list[Path]:
-        return [file for suffix in suffixes for file in path.glob(f"*.{suffix}")]
-
-    def _get_map_files(self, path: Path, *suffixes: str, hint: str) -> list[Path]:
-        if files := self._get_files(path, *suffixes):
-            return files
-        raise FolderIsEmpty(path, hint)
+    def _get_files(self, folder: Path, *suffixes: str) -> list[Path]:
+        return [file for suffix in suffixes for file in folder.glob(f"*.{suffix}")]

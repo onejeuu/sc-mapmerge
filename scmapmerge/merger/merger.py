@@ -5,14 +5,14 @@ import click
 from rich import print
 from scfile.utils import convert
 
-from scmapmerge.consts import NONTRANSPARENT_FORMATS
-from scmapmerge.consts import Folder as F
+from scmapmerge.consts import OutputFile
+from scmapmerge.consts import WorkspaceFolder as F
 from scmapmerge.datatype import Preset
 from scmapmerge.image import BaseOutputImage
 from scmapmerge.merger.exceptions import MissingRegions
 from scmapmerge.region.listing.converted import ConvertedRegions
 from scmapmerge.region.listing.encrypted import EncryptedRegions
-from scmapmerge.utils.asker import Question, ask
+from scmapmerge.utils.asker import Question, confirm
 from scmapmerge.utils.progress import FilesProgress
 from scmapmerge.workspace.base import BaseWorkspace
 
@@ -20,7 +20,12 @@ from .base import BaseMapMerger
 
 
 class MapMerger(BaseMapMerger):
-    def __init__(self, workspace: BaseWorkspace, output: BaseOutputImage, preset: Optional[Preset]):
+    def __init__(
+        self,
+        workspace: BaseWorkspace,
+        output: BaseOutputImage,
+        preset: Optional[Preset],
+    ):
         self.workspace = workspace
         self.output = output
         self.preset = preset
@@ -66,15 +71,21 @@ class MapMerger(BaseMapMerger):
             regions.filter_preset()
 
     def filter_empty(self, regions: EncryptedRegions):
-        if regions.contains_empty and ask(Question.SKIP_EMPTY_MAPS):
+        if regions.contains_empty and confirm(Question.SKIP_EMPTY_MAPS):
             regions.filter_empty()
 
     def warn_about_alpha(self, regions: EncryptedRegions):
         """Warns if output format does not support alpha and regions is overlay"""
 
-        if regions.possible_overlay and self.output.format in NONTRANSPARENT_FORMATS:
+        if (
+            regions.possible_overlay
+            and self.output.format in OutputFile.NONTRANSPARENT_FORMATS
+        ):
             print()
-            print(f"[b][yellow]Output is possibly overlay, but selected suffix ({self.output.format}) does not support transparency.[/]")
+            print(
+                "[b][yellow]Output possibly is overlay, but "
+                f"selected suffix ({self.output.format}) does not support transparency.[/]"
+            )
 
     def convert_files(self, regions: EncryptedRegions) -> None:
         """Convert encrypted map files."""
@@ -86,7 +97,7 @@ class MapMerger(BaseMapMerger):
             for region in regions:
                 convert.auto(
                     region.path,
-                    Path(F.CONVERTED, region.get_new_filename(regions.new_suffix))
+                    Path(F.CONVERTED, region.get_new_filename(regions.new_suffix)),
                 )
                 progress.increment()
 

@@ -5,8 +5,10 @@ from scmapmerge.exceptions import ScMapMergeException
 class MergerError(ScMapMergeException):
     pass
 
+
 class PresetError(MergerError):
     pass
+
 
 class MissingRegions(PresetError):
     def __init__(self, preset_name: str, missing: set[Region]):

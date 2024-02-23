@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from scmapmerge.consts import NONTRANSPARENT_FORMATS, WEBP_LIMIT, Defaults, MapBackground
+from scmapmerge.consts import OutputFile, Defaults, MapBackground
 from scmapmerge.datatype import Box, Color, ImageCoords, ImageSize
 from scmapmerge.enums import OutputFormat
 from scmapmerge.image.debug.debug import DebugRender
@@ -19,7 +19,7 @@ class OutputImage(BaseOutputImage):
         limit: int = Defaults.RESOLUTION_LIMIT,
         compress: int = Defaults.COMPRESS_LEVEL,
         quality: int = Defaults.QUALITY,
-        debug: bool = Defaults.DEBUG
+        debug: bool = Defaults.DEBUG,
     ):
         self.suffix = suffix
         self.limit = limit
@@ -42,10 +42,7 @@ class OutputImage(BaseOutputImage):
         return Image.new(mode="RGB", size=size, color=color)
 
     def _create_blank_image(self) -> None:
-        self._img = self._create(
-            ImageSize(192, 32),
-            Color(0, 0, 0)
-        )
+        self._img = self._create(ImageSize(192, 32), Color(0, 0, 0))
 
     def _write_blank_text(self):
         draw = ImageDraw.Draw(self._img)
@@ -66,11 +63,13 @@ class OutputImage(BaseOutputImage):
             raise OutputImageTooLarge(size, self.limit)
 
     def _validate_webp(self, size: ImageSize):
-        if self.format == OutputFormat.WEBP and any(i >= WEBP_LIMIT for i in size):
+        if self.format == OutputFormat.WEBP and any(
+            i >= OutputFile.WEBP_LIMIT for i in size
+        ):
             raise WebpResolutionLimit(size)
 
     def _add_alpha(self):
-        if self.format not in NONTRANSPARENT_FORMATS:
+        if self.format not in OutputFile.NONTRANSPARENT_FORMATS:
             self._img.putalpha(MapBackground.ALPHA)
 
     def paste(self, region: BaseRegionFile) -> None:

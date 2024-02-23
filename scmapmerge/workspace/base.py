@@ -26,6 +26,10 @@ class BaseWorkspace(ABC):
         pass
 
     @abstractmethod
+    def copy_files_to_encrypted(self, folder: Path) -> None:
+        pass
+
+    @abstractmethod
     def get_encrypted_files(self) -> list[Path]:
         pass
 

@@ -22,31 +22,25 @@ class DebugRender(BaseDebugRender):
     def draw(self, region: BaseRegionFile, coords: ImageCoords) -> None:
         if Draw.TEXT:
             x, y = coords
-            text = "\n".join([
-                str(region.path.stem),
-                f"{x // self.scale} {y // self.scale}",
-                f"{x}px {y}px",
-            ])
+            text = "\n".join(
+                [
+                    str(region.path.stem),
+                    f"{x // self.scale} {y // self.scale}",
+                    f"{x}px {y}px",
+                ]
+            )
             self.text(text)
 
         if Draw.OUTLINE:
             outline_rect = Rectangle(
-                ImageCoords(1, 1),
-                ImageSize(self._img.width - 1, self._img.height - 1)
+                ImageCoords(1, 1), ImageSize(self._img.width - 1, self._img.height - 1)
             )
             self.rect(outline_rect)
 
     def text(self, text: str) -> None:
         self._draw.text(
-            text=text,
-            xy=ImageCoords(16, 4),
-            font=self.font,
-            fill=Colors.TEXT
+            text=text, xy=ImageCoords(16, 4), font=self.font, fill=Colors.TEXT
         )
 
     def rect(self, rect: Rectangle) -> None:
-        self._draw.rectangle(
-            xy=rect,
-            outline=Colors.OUTLINE,
-            width=4
-        )
+        self._draw.rectangle(xy=rect, outline=Colors.OUTLINE, width=4)

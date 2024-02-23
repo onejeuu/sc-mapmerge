@@ -21,8 +21,7 @@ class EncryptedRegions(RegionsListing):
     @property
     def contains_empty(self) -> bool:
         return any(
-            r.is_empty and r.region not in self.preset_regions
-            for r in self.regions
+            r.is_empty and r.region not in self.preset_regions for r in self.regions
         )
 
     @property
@@ -38,14 +37,10 @@ class EncryptedRegions(RegionsListing):
         return set(self.preset_regions) - self.regions_set
 
     def filter_empty(self):
-        self.filter(
-            lambda r: not r.is_empty or r.region in self.preset_regions
-        )
+        self.filter(lambda r: not r.is_empty or r.region in self.preset_regions)
 
     def filter_preset(self):
-        self.filter(
-            lambda r: r.region in self.preset_regions
-        )
+        self.filter(lambda r: r.region in self.preset_regions)
 
     def __str__(self):
         return str(self.regions)

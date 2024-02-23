@@ -1,23 +1,54 @@
+from pathlib import Path
 from typing import NamedTuple, Optional
+
+from InquirerPy.base.control import Choice
 
 
 class Region(NamedTuple):
     """Region horizontal plane. x and z."""
+
     x: int
     z: int
 
-class Prompt(NamedTuple):
-    """Ask prompt. message and default answer."""
+
+class Confirm(NamedTuple):
+    """Confirm ask prompt. message and default answer."""
+
     message: str
     default: bool
 
+
+class Select(NamedTuple):
+    """Select prompt. message and list of choices."""
+
+    message: str
+    choices: list[Choice]
+
+
+class FoundPath(NamedTuple):
+    """Found game assets path. game assets path and pda path."""
+
+    game: Path
+    pda: Path
+
+
+class MapFolder(NamedTuple):
+    """Pda map folder. select name and path."""
+
+    name: str
+    path: Path
+
+
 class ImageCoords(NamedTuple):
     """Image coordinates. x and y."""
+
     x: int
     y: int
 
+
 class ImageSize(NamedTuple):
     """Image size in pixels. width and height."""
+
     w: int
     h: int
 
@@ -25,14 +56,18 @@ class ImageSize(NamedTuple):
     def resolution(self):
         return self.w * self.h
 
+
 class Color(NamedTuple):
     """RGB color. red, green and blue."""
+
     r: int
     g: int
     b: int
 
+
 class Box(NamedTuple):
     """Box. left, top, right, bottom."""
+
     left: int
     top: int
     right: int
@@ -45,13 +80,17 @@ class Box(NamedTuple):
     def valid(self) -> bool:
         return self.right > self.left and self.bottom > self.top
 
+
 class Rectangle(NamedTuple):
     """Draw Rectangle. coordinates and size."""
+
     xy: ImageCoords
     size: ImageSize
 
+
 class Preset(NamedTuple):
     """Preset configuration. name, required regions, and optional image cropping."""
+
     name: str
     regions: list[Region]
     crop: Optional[Box] = None
