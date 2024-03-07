@@ -12,23 +12,25 @@ from .base import BaseWorkspace
 
 
 class Workspace(BaseWorkspace):
+    root = F.WORKSPACE
+
     def __init__(
         self,
         filename: str = Defaults.FILENAME,
         suffix: str = Defaults.SUFFIX,
-        overwrite: bool = Defaults.OVERWRITE
+        overwrite: bool = Defaults.OVERWRITE,
     ):
         self.filename = filename
         self.suffix = suffix
         self.overwrite = overwrite
 
     @property
-    def folders(self):
-        return [F.WORKSPACE, F.ENCRYPTED, F.CONVERTED, F.OUTPUT]
+    def folders(self) -> list[Path]:
+        return [self.root, F.ENCRYPTED, F.CONVERTED, F.OUTPUT]
 
     @property
     def exists(self):
-        return F.WORKSPACE.exists()
+        return self.root.exists()
 
     def create(self):
         for folder in self.folders:
@@ -39,7 +41,7 @@ class Workspace(BaseWorkspace):
             self.clear_folder(folder)
 
     def clear_folder(self, path: Path):
-        if all((path.exists(), path.is_dir(), path.is_relative_to(F.WORKSPACE))):
+        if all((path.exists(), path.is_dir(), path.is_relative_to(self.root))):
             self._clear_folder(path)
 
     def _clear_folder(self, path: Path):

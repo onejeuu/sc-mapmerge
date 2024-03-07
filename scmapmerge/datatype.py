@@ -11,34 +11,6 @@ class Region(NamedTuple):
     z: int
 
 
-class Confirm(NamedTuple):
-    """Confirm ask prompt. message and default answer."""
-
-    message: str
-    default: bool
-
-
-class Select(NamedTuple):
-    """Select prompt. message and list of choices."""
-
-    message: str
-    choices: list[Choice]
-
-
-class FoundPath(NamedTuple):
-    """Found game assets path. game assets path and pda path."""
-
-    game: Path
-    pda: Path
-
-
-class MapFolder(NamedTuple):
-    """Pda map folder. select name and path."""
-
-    name: str
-    path: Path
-
-
 class ImageCoords(NamedTuple):
     """Image coordinates. x and y."""
 
@@ -66,7 +38,7 @@ class Color(NamedTuple):
 
 
 class Box(NamedTuple):
-    """Box. left, top, right, bottom."""
+    """Box. left, top, right and bottom."""
 
     left: int
     top: int
@@ -97,3 +69,34 @@ class Preset(NamedTuple):
 
     def __str__(self):
         return self.name
+
+
+class Confirm(NamedTuple):
+    """Confirm ask prompt. message and default answer."""
+
+    message: str
+    default: bool
+
+
+class Select(NamedTuple):
+    """Select prompt. message and list of choices."""
+
+    message: str
+    choices: list[Choice]
+
+
+class GamePath(NamedTuple):
+    """Game assets path. assets path and pda path."""
+
+    assets: Path
+
+    @property
+    def pda(self):
+        return Path(self.assets, "pda")
+
+
+class MapFolder(NamedTuple):
+    """Pda map folder. select name and path."""
+
+    name: str
+    path: Path

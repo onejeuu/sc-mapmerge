@@ -4,18 +4,17 @@ This CLI utility is designed to merging stalcraft map into single image.
 
 You can use compiled executable from [Releases](https://github.com/onejeuu/sc-mapmerge/releases) page.
 
-
 ## 💻 Usage
 
 ### Merge Map
 
 1. Copy encrypted map files.
 
-    Copy files with `.ol` or `.mic` extension to `workspace/1-encrypted` folder.
+   Move map files with `.ol` or `.mic` extension to `workspace/1-encrypted` folder.
 
-    Folder `workspace` must be in same location as `scmapmerge.exe`.
+   Folder `workspace` must be in same location as `scmapmerge.exe`.
 
-    Map files located in `pda` folder of game assets.
+   Map files located in `pda` folder of game assets.
 
 2. Run `scmapmerge.exe`.
 
@@ -32,27 +31,27 @@ You can use compiled executable from [Releases](https://github.com/onejeuu/sc-ma
 
 - Delete `workspace` folder.
 
-    or
+  or
 
-- Run `scmapmerge.exe` with `-D` or `--clear` flag.
+- Run `scmapmerge.exe` with `--clear` flag.
 
-    This will delete **all files** in `workspace` folder, including `workspace/3-output`.
+  This will delete **all files** in `workspace` folder, including `workspace/3-output`.
 
 ### Options
 
 - `--help` Show help message.
 
-- `-F`, `--filename` - Output filename. Accepts [datetime formatting](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes). Defaults to `"Map %Y.%m.%d"`.
+- `-F`, `--filename` - Output Filename. Accepts [datetime formatting](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes). Defaults to `"Map %Y.%m.%d"`.
 
-- `-S`, `--suffix` - Output format. (`png`, `jpg`, `webp`, `tiff`, `bmp`, `dds`). Defaults to jpg.
+- `-S`, `--suffix` - Output Format. (`jpg`, `png`, `webp`, `tiff`, `bmp`, `dds`). Defaults to jpg.
 
-- `-P`, `--preset` - Output preset. (`zone`, `newsever`, `underpd`, ...). Defaults to None.
+- `-P`, `--preset` - Output Preset. (`zone`, `newsever`, `underpd`, `...`). Defaults to None.
 
-- `-L`, `--limit` - Output resolution limit, to prevent memory overflow. Specify 0 to ignore.
+- `-L`, `--limit` - Output Resolution Limit. Prevents memory overflow. Specify `0` to ignore.
 
-- `--compress` - Output compression level (png). From 0 to 9. Defaults to 6.
+- `--compress` - PNG Compression Level. (0 - 9). Defaults to 6.
 
-- `--quality` - Output quality % (jpg, webp). From 0 to 100. Defaults to 90.
+- `--quality` - JPG/WEBP Quality %. (0 - 100). Defaults to 90.
 
 ### Flags
 
@@ -69,7 +68,6 @@ You can use compiled executable from [Releases](https://github.com/onejeuu/sc-ma
 ```bash
 scmapmerge -N -F "Map" -S jpg -P zone --quality 100 --overwrite
 ```
-
 
 ## 🛠️ Build
 

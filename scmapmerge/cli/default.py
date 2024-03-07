@@ -108,7 +108,7 @@ def main(
         if fromassets:
             selector = MapSelector()
 
-            print(f"[b]Assets: '{selector.found.game}'[/]")
+            print(f"[b]Assets: '{selector.game.assets}'[/]")
 
             path = selector.select_map()
 

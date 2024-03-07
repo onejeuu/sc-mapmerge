@@ -3,6 +3,8 @@ from pathlib import Path
 
 
 class BaseWorkspace(ABC):
+    root: Path
+
     @property
     @abstractmethod
     def folders(self) -> list[Path]:

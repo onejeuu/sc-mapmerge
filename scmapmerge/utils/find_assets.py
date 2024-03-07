@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from scmapmerge.consts import AssetsPath
-from scmapmerge.datatype import FoundPath
+from scmapmerge.datatype import GamePath
 
 
 def subtract_relative_subpath(absolute: Path, relative: Path) -> Path:
@@ -18,17 +18,17 @@ def path_is_matching(path: str) -> bool:
     return path.lower().endswith(str(AssetsPath.ENVIRONMENT))
 
 
-def find_assets_paths() -> list[FoundPath]:
+def find_assets_paths() -> list[GamePath]:
     environment_paths = get_environment_paths()
 
-    matching_paths: set[FoundPath] = set()
+    matching_paths: set[GamePath] = set()
 
     for path in environment_paths:
         if path_is_matching(path):
-            game = subtract_relative_subpath(Path(path), AssetsPath.BIN)
-            pda = Path(game, AssetsPath.PDA)
+            bin = subtract_relative_subpath(Path(path), AssetsPath.BIN)
+            game = GamePath(bin)
 
-            if pda.exists():
-                matching_paths.add(FoundPath(game, pda))
+            if game.pda.exists():
+                matching_paths.add(game)
 
     return list(matching_paths)

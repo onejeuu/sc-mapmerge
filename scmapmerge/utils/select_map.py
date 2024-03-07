@@ -2,7 +2,7 @@ from pathlib import Path
 
 from InquirerPy.base.control import Choice
 
-from scmapmerge.datatype import FoundPath, MapFolder, Select
+from scmapmerge.datatype import GamePath, MapFolder, Select
 from scmapmerge.utils.asker import select
 from scmapmerge.utils.find_assets import find_assets_paths
 from scmapmerge.workspace.exceptions import AssetsPathNotFound, FolderIsEmpty
@@ -23,9 +23,9 @@ MAPS = [
 
 class MapSelector:
     def __init__(self):
-        self.found = self.find_game()
+        self.game = self.find_game()
 
-    def find_game(self) -> FoundPath:
+    def find_game(self) -> GamePath:
         found_paths = find_assets_paths()
 
         if not found_paths:
@@ -36,8 +36,8 @@ class MapSelector:
 
         return found_paths[0]
 
-    def select_assets(self, found_paths: list[FoundPath]) -> FoundPath:
-        choices = [Choice(found, name=str(found.game)) for found in found_paths]
+    def select_assets(self, found_paths: list[GamePath]) -> GamePath:
+        choices = [Choice(found, name=str(found.assets)) for found in found_paths]
 
         return select(
             Select(message="Found multiple game assets. Select one:", choices=choices)
@@ -47,12 +47,12 @@ class MapSelector:
         choices: list[Choice] = []
 
         for map_folder in MAPS:
-            map_path = Path(self.found.pda, map_folder.path)
+            map_path = Path(self.game.pda, map_folder.path)
 
             if map_path.exists():
                 choices.append(Choice(map_path, name=map_folder.name))
 
         if not choices:
-            raise FolderIsEmpty(self.found.pda, "Game assets is invalid.")
+            raise FolderIsEmpty(self.game.pda, "Game assets is invalid.")
 
         return select(Select(message="Select map:", choices=choices))
