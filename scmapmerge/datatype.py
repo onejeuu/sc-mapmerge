@@ -99,8 +99,8 @@ class GamePath(NamedTuple):
         return Path(self.assets, "pda")
 
 
-class MapFolder(NamedTuple):
-    """Pda map folder. select name and path."""
+class MapDir(NamedTuple):
+    """Pda map directory. select name and path."""
 
     name: str
     path: Path

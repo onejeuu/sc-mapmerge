@@ -25,7 +25,7 @@ class OutputFile:
     NONTRANSPARENT_FORMATS = {OutputFormat.JPG, OutputFormat.BMP, OutputFormat.DDS}
 
 
-class WorkspaceFolder:
+class WorkspaceDirectory:
     WORKSPACE = Path("workspace")
     ENCRYPTED = WORKSPACE / "1-encrypted"
     CONVERTED = WORKSPACE / "2-converted"

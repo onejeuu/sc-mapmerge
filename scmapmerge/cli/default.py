@@ -5,7 +5,7 @@ from rich import print
 from scfile.exceptions import ScFileException
 
 from scmapmerge.consts import VERSION, Defaults
-from scmapmerge.consts import WorkspaceFolder as F
+from scmapmerge.consts import WorkspaceDirectory as F
 from scmapmerge.datatype import Preset
 from scmapmerge.enums import OutputFormat
 from scmapmerge.exceptions import ScMapMergeException
@@ -52,11 +52,9 @@ from .utils import join
     help="Output resolution limit.",
     type=int,
 )
-@click.option("-D", "--clear", is_flag=True, help="Clear workspace folder.")
+@click.option("-D", "--clear", is_flag=True, help="Clear workspace directory.")
 @click.option("-A", "--fromassets", is_flag=True, help="Select map from game assets.")
-@click.option(
-    "-N", "--nopause", is_flag=True, help="Removes pause before program exit."
-)
+@click.option("-N", "--nopause", is_flag=True, help="Removes pause before program exit.")
 @click.option(
     "--compress",
     default=Defaults.COMPRESS_LEVEL,
@@ -114,7 +112,7 @@ def main(
 
             # it would be possible to read directly from game assets
             # but even though its slower, its safer
-            workspace.clear_folder(F.ENCRYPTED)
+            workspace.clear_directory(F.ENCRYPTED)
             workspace.copy_files_to_encrypted(path)
 
         merger.merge()

@@ -6,7 +6,7 @@ from rich import print
 from scfile.utils import convert
 
 from scmapmerge.consts import OutputFile
-from scmapmerge.consts import WorkspaceFolder as F
+from scmapmerge.consts import WorkspaceDirectory as F
 from scmapmerge.datatype import Preset
 from scmapmerge.image import BaseOutputImage
 from scmapmerge.merger.exceptions import MissingRegions
@@ -32,7 +32,7 @@ class MapMerger:
         self.check_first_launch()
         self.workspace.create()
 
-        self.workspace.clear_folder(F.CONVERTED)
+        self.workspace.clear_directory(F.CONVERTED)
         self.convert_encrypted()
 
         self.merge_to_full_map()
@@ -45,7 +45,7 @@ class MapMerger:
             print(
                 "\n[b yellow]Workspace has been successfully created.\n"
                 "Copy encrypted map files (.ol or .mic) to[/] "
-                f"'{F.ENCRYPTED.as_posix()}' [b yellow]folder.[/]"
+                f"'{F.ENCRYPTED.as_posix()}' [b yellow]directory.[/]"
             )
             click.pause("Press Enter to continue...")
 

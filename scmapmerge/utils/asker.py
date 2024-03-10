@@ -1,13 +1,13 @@
 from InquirerPy import inquirer
 from rich import print
 
-from scmapmerge.consts import WorkspaceFolder as F
+from scmapmerge.consts import WorkspaceDirectory as F
 from scmapmerge.datatype import Confirm, Select
 
 
 class Question:
     CLEAR_WORKSPACE = Confirm(
-        message=f"Are you sure you want delete all files in {F.WORKSPACE} folder?",
+        message=f"Are you sure you want delete all files in {F.WORKSPACE} directory?",
         default=False,
     )
 

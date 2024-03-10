@@ -10,11 +10,11 @@ You can use compiled executable from [Releases](https://github.com/onejeuu/sc-ma
 
 1. Copy encrypted map files.
 
-   Move map files with `.ol` or `.mic` extension to `workspace/1-encrypted` folder.
+   Move map files with `.ol` or `.mic` extension to `/workspace/1-encrypted` directory.
 
-   Folder `workspace` must be in same location as `scmapmerge.exe`.
+   Directory `/workspace` must be in same location as `scmapmerge.exe`.
 
-   Map files located in `pda` folder of game assets.
+   Map files located in `/pda` directory of game assets.
 
 2. Run `scmapmerge.exe`.
 
@@ -25,17 +25,17 @@ You can use compiled executable from [Releases](https://github.com/onejeuu/sc-ma
 
 #### Create
 
-- Run `scmapmerge.exe`. Workspace folders will be created automatically.
+- Run `scmapmerge.exe`. Workspace directories will be created automatically.
 
 #### Clear
 
-- Delete `workspace` folder.
+- Delete `/workspace` directory.
 
   or
 
 - Run `scmapmerge.exe` with `--clear` flag.
 
-  This will delete **all files** in `workspace` folder, including `workspace/3-output`.
+  This will delete **all files** in `/workspace` directory, including `/workspace/3-output`.
 
 ### Options
 
@@ -55,7 +55,7 @@ You can use compiled executable from [Releases](https://github.com/onejeuu/sc-ma
 
 ### Flags
 
-- `-D`, `--clear` - Clear workspace folder. Deletes all files.
+- `-D`, `--clear` - Clear workspace directory. Deletes all files.
 
 - `-A`, `--fromassets` - Select map from game assets. No need to manually copy files.
 
@@ -93,4 +93,4 @@ And run script to compile:
 poetry run build
 ```
 
-Executable file will be created in `/dist` directory in your project folder.
+Executable file will be created in `/dist` directory.
