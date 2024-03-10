@@ -35,7 +35,6 @@ class WorkspaceFolder:
 class AssetsPath:
     BIN = Path("win64", "java", "bin")
     ENVIRONMENT = Path("stalcraft", BIN)
-    ASSETS = Path("modassets", "assets")
 
 
 class Defaults:

@@ -8,10 +8,8 @@ from scmapmerge.consts import WorkspaceFolder as F
 from scmapmerge.utils.filename import FileName
 from scmapmerge.workspace.exceptions import FolderIsEmpty
 
-from .base import BaseWorkspace
 
-
-class Workspace(BaseWorkspace):
+class Workspace:
     root = F.WORKSPACE
 
     def __init__(

@@ -88,7 +88,11 @@ class Select(NamedTuple):
 class GamePath(NamedTuple):
     """Game assets path. assets path and pda path."""
 
-    assets: Path
+    runtime: Path
+
+    @property
+    def assets(self):
+        return Path(self.runtime, "modassets", "assets")
 
     @property
     def pda(self):

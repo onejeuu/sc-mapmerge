@@ -25,8 +25,8 @@ def find_assets_paths() -> list[GamePath]:
 
     for path in environment_paths:
         if path_is_matching(path):
-            bin = subtract_relative_subpath(Path(path), AssetsPath.BIN)
-            game = GamePath(bin)
+            runtime = subtract_relative_subpath(Path(path), AssetsPath.BIN)
+            game = GamePath(runtime)
 
             if game.pda.exists():
                 matching_paths.add(game)

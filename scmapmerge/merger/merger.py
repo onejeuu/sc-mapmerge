@@ -14,15 +14,13 @@ from scmapmerge.region.listing.converted import ConvertedRegions
 from scmapmerge.region.listing.encrypted import EncryptedRegions
 from scmapmerge.utils.asker import Question, confirm
 from scmapmerge.utils.progress import FilesProgress
-from scmapmerge.workspace.base import BaseWorkspace
-
-from .base import BaseMapMerger
+from scmapmerge.workspace import Workspace
 
 
-class MapMerger(BaseMapMerger):
+class MapMerger:
     def __init__(
         self,
-        workspace: BaseWorkspace,
+        workspace: Workspace,
         output: BaseOutputImage,
         preset: Optional[Preset],
     ):
@@ -77,10 +75,7 @@ class MapMerger(BaseMapMerger):
     def warn_about_alpha(self, regions: EncryptedRegions):
         """Warns if output format does not support alpha and regions is overlay"""
 
-        if (
-            regions.possible_overlay
-            and self.output.format in OutputFile.NONTRANSPARENT_FORMATS
-        ):
+        if regions.possible_overlay and self.output.format in OutputFile.NONTRANSPARENT_FORMATS:
             print()
             print(
                 "[b][yellow]Output possibly is overlay, but "

@@ -39,9 +39,7 @@ class MapSelector:
     def select_assets(self, found_paths: list[GamePath]) -> GamePath:
         choices = [Choice(found, name=str(found.assets)) for found in found_paths]
 
-        return select(
-            Select(message="Found multiple game assets. Select one:", choices=choices)
-        )
+        return select(Select(message="Found multiple game assets. Select one:", choices=choices))
 
     def select_map(self) -> Path:
         choices: list[Choice] = []
